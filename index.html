@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusConnect - Enterprise ERP Portal</title>
+    <title>NexusConnect - Enterprise ERP & Business Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-    <!-- Chart.js za napredne grafikone -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 h-screen flex flex-col">
@@ -18,14 +17,15 @@
             <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-2.5 py-1.5 rounded-lg bg-blue-600 font-medium text-xs transition">📊 Dashboard</button>
             <button onclick="switchTab('chat')" id="tab-chat" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Chat</button>
             <button onclick="switchTab('docs')" id="tab-docs" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Finansije</button>
+            <button onclick="switchTab('contracts')" id="tab-contracts" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Ugovori</button>
             <button onclick="switchTab('tasks')" id="tab-tasks" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Zadaci</button>
-            <button onclick="switchTab('hr')" id="tab-hr" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">HR & Vreme</button>
+            <button onclick="switchTab('hr')" id="tab-hr" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">HR</button>
             <button onclick="switchTab('inventory')" id="tab-inventory" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Magacin</button>
             <button onclick="switchTab('crm')" id="tab-crm" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Klijenti</button>
             <button onclick="switchTab('travel')" id="tab-travel" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Putni nalozi</button>
             <button onclick="switchTab('users')" id="tab-users" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Članovi</button>
             
-            <!-- Zvonce za notifikacije -->
+            <!-- Notifikacije -->
             <div class="relative ml-2">
                 <button onclick="toggleNotifications()" class="p-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg relative">
                     🔔
@@ -34,7 +34,7 @@
                 <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-72 bg-slate-800 border border-slate-700 rounded-xl shadow-xl z-50 p-3 space-y-2 text-xs">
                     <h4 class="font-bold border-b border-slate-700 pb-1 text-slate-300">Obaveštenja</h4>
                     <div id="notif-list" class="space-y-1 max-h-48 overflow-y-auto text-slate-400">
-                        <p>Nema novih obaveštenja.</p>
+                        <p>Nema obaveštenja.</p>
                     </div>
                 </div>
             </div>
@@ -46,52 +46,50 @@
         </div>
     </header>
 
-    <!-- 0. DASHBOARD MODUL (Početni pregled sa grafikonom) -->
+    <!-- 0. DASHBOARD SA P&L ANALITIKOM -->
     <div id="view-dashboard" class="flex-1 p-6 overflow-y-auto max-w-6xl mx-auto w-full space-y-6">
-        <h2 class="text-2xl font-bold text-slate-100">Pregled Poslovanja i Analitika</h2>
+        <h2 class="text-2xl font-bold text-slate-100">Finansijski Bilans i Pregled Poslovanja</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                <p class="text-xs text-slate-400">Ukupni troškovi</p>
-                <h3 id="dash-total-expenses" class="text-xl font-bold text-emerald-400 mt-1">0 RSD</h3>
+                <p class="text-xs text-slate-400">Ukupni prihodi</p>
+                <h3 id="dash-total-income" class="text-xl font-bold text-blue-400 mt-1">0 RSD</h3>
             </div>
             <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                <p class="text-xs text-slate-400">Aktivni zadaci</p>
-                <h3 id="dash-active-tasks" class="text-xl font-bold text-blue-400 mt-1">0</h3>
+                <p class="text-xs text-slate-400">Ukupni rashodi</p>
+                <h3 id="dash-total-expenses" class="text-xl font-bold text-rose-400 mt-1">0 RSD</h3>
             </div>
             <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                <p class="text-xs text-slate-400">Artikli u magacinu</p>
-                <h3 id="dash-inventory-count" class="text-xl font-bold text-amber-400 mt-1">0</h3>
+                <p class="text-xs text-slate-400">Neto dobit (Profit)</p>
+                <h3 id="dash-net-profit" class="text-xl font-bold text-emerald-400 mt-1">0 RSD</h3>
             </div>
             <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                <p class="text-xs text-slate-400">Registrovani klijenti</p>
-                <h3 id="dash-client-count" class="text-xl font-bold text-purple-400 mt-1">0</h3>
+                <p class="text-xs text-slate-400">Aktivni ugovori</p>
+                <h3 id="dash-active-contracts" class="text-xl font-bold text-purple-400 mt-1">0</h3>
             </div>
         </div>
 
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
-            <h3 class="text-lg font-semibold mb-4 text-slate-200">Struktura troškova po kategorijama</h3>
+            <h3 class="text-lg font-semibold mb-4 text-slate-200">Odnos Prihoda i Rashoda po Kategorijama</h3>
             <div class="h-64">
                 <canvas id="expensesChart"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- OSTALI MODULI (Chat, Finansije, Zadaci, HR, Magacin, CRM, Travel, Users) -->
+    <!-- Ostale sekcije (Chat, Finansije, Ugovori, Zadaci, HR, Magacin, CRM, Travel, Users) -->
     <div id="view-chat" class="flex flex-1 overflow-hidden hidden">
         <div class="w-64 bg-slate-800/50 border-r border-slate-700 p-4 flex flex-col gap-2 overflow-y-auto">
-            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Poslovni Kanali</h2>
+            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Kanali</h2>
             <button onclick="switchChannel('generalni')" id="btn-generalni" class="text-left px-3 py-2 rounded-lg bg-blue-600 font-medium transition text-sm"># generalni</button>
-            <button onclick="switchChannel('uprava')" id="btn-uprava" class="text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm"># uprava-i-direktorijum</button>
+            <button onclick="switchChannel('uprava')" id="btn-uprava" class="text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm"># uprava</button>
             <button onclick="switchChannel('racunovodstvo')" id="btn-racunovodstvo" class="text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm"># racunovodstvo</button>
-            <button onclick="switchChannel('nabavka-teren')" id="btn-nabavka-teren" class="text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm"># nabavka-i-teren</button>
-            <button onclick="switchChannel('obavestenja')" id="btn-obavestenja" class="text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm"># obavestenja</button>
         </div>
         <div class="flex-1 flex flex-col bg-slate-900">
             <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
             <form id="chat-form" class="p-4 bg-slate-800 border-t border-slate-700 flex gap-2">
-                <input type="text" id="message-input" placeholder="Napišite poruku u kanal..." autocomplete="off" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-lg font-medium transition">Pošalji</button>
+                <input type="text" id="message-input" placeholder="Napišite poruku..." autocomplete="off" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
+                <button type="submit" class="bg-blue-600 px-6 py-2 rounded-lg font-medium">Pošalji</button>
             </form>
         </div>
     </div>
@@ -99,76 +97,83 @@
     <div id="view-docs" class="flex-1 p-6 overflow-y-auto hidden flex flex-col">
         <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-slate-100">Fakture, Računi i Troškovi</h2>
-                <p class="text-sm text-slate-400 mt-1" id="total-expenses-summary">Ukupni troškovi: 0 RSD</p>
+                <h2 class="text-2xl font-bold text-slate-100">Fakture, Prihodi i Rashodi</h2>
+                <p class="text-sm text-slate-400 mt-1" id="total-expenses-summary">Ukupno: 0 RSD</p>
             </div>
             <div class="flex gap-2">
-                <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-medium text-sm transition">🖨️ Štampaj izveštaj</button>
-                <button onclick="openFolderModal()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-medium text-sm transition">+ Novi folder</button>
-                <button onclick="openUploadModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition">+ Dodaj dokument</button>
+                <button onclick="window.print()" class="bg-slate-700 px-4 py-2 rounded-lg text-sm">🖨️ Štampaj</button>
+                <button onclick="openFolderModal()" class="bg-slate-700 px-4 py-2 rounded-lg text-sm">+ Novi folder</button>
+                <button onclick="openUploadModal()" class="bg-blue-600 px-4 py-2 rounded-lg text-sm font-medium">+ Novi dokument</button>
             </div>
         </div>
         <div class="mb-4">
-            <input type="text" id="search-input" oninput="filterDocuments()" placeholder="Pretraži račune po nazivu ili iznosu..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 outline-none focus:border-blue-500 text-sm">
+            <input type="text" id="search-input" oninput="filterDocuments()" placeholder="Pretraži..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 outline-none text-sm">
         </div>
         <div id="folders-container" class="flex gap-2 overflow-x-auto pb-4 mb-6 border-b border-slate-700"></div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="documents-grid"></div>
     </div>
 
+    <!-- Modul Ugovori -->
+    <div id="view-contracts" class="flex-1 p-6 overflow-y-auto hidden max-w-5xl mx-auto w-full">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-slate-100">Evidencija Ugovora i Rokova</h2>
+            <button onclick="openContractModal()" class="bg-blue-600 px-4 py-2 rounded-lg text-sm font-medium">+ Dodaj ugovor</button>
+        </div>
+        <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-700/50 text-slate-300 text-sm border-b border-slate-700">
+                        <th class="p-3">Naziv ugovora</th>
+                        <th class="p-3">Partner / Firma</th>
+                        <th class="p-3">Datum isteka</th>
+                        <th class="p-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="contracts-table-body" class="divide-y divide-slate-700 text-sm"></tbody>
+            </table>
+        </div>
+    </div>
+
     <div id="view-tasks" class="flex-1 p-6 overflow-y-auto hidden max-w-5xl mx-auto w-full">
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-slate-100">Radni Zadaci i Naloji</h2>
-            <button onclick="openTaskModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition">+ Kreiraj novi zadatak</button>
+            <h2 class="text-2xl font-bold text-slate-100">Radni Zadaci</h2>
+            <button onclick="openTaskModal()" class="bg-blue-600 px-4 py-2 rounded-lg text-sm font-medium">+ Novi zadatak</button>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="tasks-grid"></div>
     </div>
 
     <div id="view-hr" class="flex-1 p-6 overflow-y-auto hidden max-w-4xl mx-auto w-full space-y-6">
-        <h2 class="text-2xl font-bold text-slate-100">Evidencija Radnog Vremena i Odmora</h2>
+        <h2 class="text-2xl font-bold text-slate-100">Radno Vreme</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
-                <div>
-                    <h3 class="text-lg font-semibold mb-2 text-slate-200">Prisustvo na poslu</h3>
-                    <p class="text-sm text-slate-400 mb-4">Evidentirajte svoj dolazak ili odlazak sa posla jednim klikom.</p>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="logAttendance('Prijava dolaska')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-lg font-medium text-sm transition">Prijava dolaska</button>
-                    <button onclick="logAttendance('Prijava odlaska')" class="flex-1 bg-rose-600 hover:bg-rose-500 py-2.5 rounded-lg font-medium text-sm transition">Prijava odlaska</button>
+                <h3 class="text-lg font-semibold mb-2 text-slate-200">Prisustvo</h3>
+                <div class="flex gap-3 mt-4">
+                    <button onclick="logAttendance('Prijava dolaska')" class="flex-1 bg-emerald-600 py-2.5 rounded-lg text-sm font-medium">Dolazak</button>
+                    <button onclick="logAttendance('Prijava odlaska')" class="flex-1 bg-rose-600 py-2.5 rounded-lg text-sm font-medium">Odlazak</button>
                 </div>
             </div>
             <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
-                <h3 class="text-lg font-semibold mb-3 text-slate-200">Zahtev za odsustvo</h3>
+                <h3 class="text-lg font-semibold mb-3 text-slate-200">Zahtev za odmor</h3>
                 <form onsubmit="submitLeaveRequest(event)" class="space-y-3">
-                    <input type="text" id="leave-reason" placeholder="Razlog (npr. Godišnji odmor)" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none">
-                    <div class="flex gap-2">
-                        <input type="date" id="leave-from" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none text-slate-300">
-                        <input type="date" id="leave-to" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none text-slate-300">
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded-lg font-medium text-sm transition">Podnesi zahtev</button>
+                    <input type="text" id="leave-reason" placeholder="Razlog" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none">
+                    <button type="submit" class="w-full bg-blue-600 py-2 rounded-lg text-sm font-medium">Pošalji</button>
                 </form>
             </div>
         </div>
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
-            <h3 class="text-lg font-semibold mb-3 text-slate-200">Aktivnosti tima</h3>
+            <h3 class="text-lg font-semibold mb-3 text-slate-200">Aktivnosti</h3>
             <div id="hr-activity-log" class="space-y-2 text-sm text-slate-300"></div>
         </div>
     </div>
 
     <div id="view-inventory" class="flex-1 p-6 overflow-y-auto hidden max-w-5xl mx-auto w-full">
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-slate-100">Magacin i Zaduženja Opreme</h2>
-            <button onclick="openInventoryModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition">+ Dodaj artikal / opremu</button>
+            <h2 class="text-2xl font-bold text-slate-100">Magacin</h2>
+            <button onclick="openInventoryModal()" class="bg-blue-600 px-4 py-2 rounded-lg text-sm">+ Dodaj artikal</button>
         </div>
         <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
             <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-700/50 text-slate-300 text-sm border-b border-slate-700">
-                        <th class="p-3">Naziv stavke</th>
-                        <th class="p-3">Kategorija</th>
-                        <th class="p-3">Količina</th>
-                        <th class="p-3">Zaduženo kod</th>
-                    </tr>
-                </thead>
+                <thead><tr class="bg-slate-700/50 text-slate-300 text-sm border-b border-slate-700"><th class="p-3">Naziv</th><th class="p-3">Kategorija</th><th class="p-3">Količina</th><th class="p-3">Zaduženo</th></tr></thead>
                 <tbody id="inventory-table-body" class="divide-y divide-slate-700 text-sm"></tbody>
             </table>
         </div>
@@ -176,58 +181,116 @@
 
     <div id="view-crm" class="flex-1 p-6 overflow-y-auto hidden max-w-5xl mx-auto w-full">
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-slate-100">Baza Klijenata i Partnera</h2>
-            <button onclick="openClientModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition">+ Dodaj novog klijenta</button>
+            <h2 class="text-2xl font-bold text-slate-100">Klijenti</h2>
+            <button onclick="openClientModal()" class="bg-blue-600 px-4 py-2 rounded-lg text-sm">+ Dodaj klijenta</button>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="clients-grid"></div>
     </div>
 
     <div id="view-travel" class="flex-1 p-6 overflow-y-auto hidden max-w-5xl mx-auto w-full">
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-slate-100">Putni Nalozi i Službena Vozila</h2>
-            <button onclick="openTravelModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition">+ Otvori putni nalog</button>
+            <h2 class="text-2xl font-bold text-slate-100">Putni nalozi</h2>
+            <button onclick="openTravelModal()" class="bg-blue-600 px-4 py-2 rounded-lg text-sm">+ Otvori nalog</button>
         </div>
         <div class="space-y-4" id="travel-logs-container"></div>
     </div>
 
     <div id="view-users" class="flex-1 p-6 overflow-y-auto hidden max-w-4xl mx-auto w-full">
-        <h2 class="text-2xl font-bold mb-4 text-slate-100">Upravljanje Članovima Tima</h2>
+        <h2 class="text-2xl font-bold mb-4 text-slate-100">Članovi tima</h2>
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-6">
-            <h3 class="text-lg font-semibold mb-3 text-slate-200">Dodaj novog kolegu</h3>
             <form id="add-user-form" onsubmit="addNewUser(event)" class="flex gap-3 flex-wrap">
-                <input type="text" id="new-user-name" placeholder="Ime i prezime" required class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 flex-1 outline-none focus:border-blue-500">
-                <input type="email" id="new-user-email" placeholder="Email adresa" required class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 flex-1 outline-none focus:border-blue-500">
-                <select id="new-user-role" class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
+                <input type="text" id="new-user-name" placeholder="Ime" required class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 flex-1 outline-none text-sm">
+                <input type="email" id="new-user-email" placeholder="Email" required class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 flex-1 outline-none text-sm">
+                <select id="new-user-role" class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
                     <option value="employee">Zaposleni</option>
                     <option value="manager">Menadžer</option>
                     <option value="admin">Admin</option>
                 </select>
-                <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-lg font-medium transition">Sačuvaj člana</button>
+                <button type="submit" class="bg-emerald-600 px-6 py-2 rounded-lg font-medium text-sm">Sačuvaj</button>
             </form>
         </div>
         <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
             <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-700/50 text-slate-300 text-sm border-b border-slate-700">
-                        <th class="p-3">Ime</th>
-                        <th class="p-3">Email</th>
-                        <th class="p-3">Uloga</th>
-                    </tr>
-                </thead>
+                <thead><tr class="bg-slate-700/50 text-slate-300 text-sm border-b border-slate-700"><th class="p-3">Ime</th><th class="p-3">Email</th><th class="p-3">Uloga</th></tr></thead>
                 <tbody id="users-table-body" class="divide-y divide-slate-700 text-sm"></tbody>
             </table>
         </div>
     </div>
 
     <!-- Modali -->
+    <div id="contract-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
+            <h3 class="text-xl font-bold mb-4 text-slate-100">Novi ugovor</h3>
+            <form onsubmit="addContract(event)" class="space-y-4">
+                <input type="text" id="con-title" placeholder="Naziv ugovora" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                <input type="text" id="con-partner" placeholder="Partner / Firma" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                <input type="date" id="con-date" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm text-slate-300">
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeModal('contract-modal')" class="px-4 py-2 bg-slate-700 rounded-lg text-sm">Otkaži</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium">Sačuvaj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="upload-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
+            <h3 class="text-xl font-bold mb-4 text-slate-100">Novi dokument / finansija</h3>
+            <form onsubmit="uploadDocument(event)" class="space-y-4">
+                <input type="text" id="doc-title" placeholder="Naziv / Opis" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="doc-type" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                        <option value="Rashod">Rashod (Trošak)</option>
+                        <option value="Prihod">Prihod (Naplata)</option>
+                    </select>
+                    <input type="number" id="doc-amount" placeholder="Iznos (RSD)" step="0.01" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                </div>
+                <select id="doc-category" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm"></select>
+                <input type="file" id="doc-file" required class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeUploadModal()" class="px-4 py-2 bg-slate-700 rounded-lg text-sm">Otkaži</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium">Sačuvaj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="folder-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-sm w-full">
+            <h3 class="text-xl font-bold mb-4 text-slate-100">Novi folder</h3>
+            <form onsubmit="createNewFolder(event)" class="space-y-4">
+                <input type="text" id="new-folder-name" placeholder="Naziv" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeFolderModal()" class="px-4 py-2 bg-slate-700 rounded-lg text-sm">Otkaži</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium">Kreiraj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="task-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
+            <h3 class="text-xl font-bold mb-4 text-slate-100">Novi zadatak</h3>
+            <form onsubmit="createTask(event)" class="space-y-4">
+                <input type="text" id="task-title" placeholder="Naslov" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                <textarea id="task-desc" placeholder="Detalji..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm" rows="3"></textarea>
+                <select id="task-assignee" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm"></select>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeTaskModal()" class="px-4 py-2 bg-slate-700 rounded-lg text-sm">Otkaži</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium">Kreiraj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="inventory-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
-            <h3 class="text-xl font-bold mb-4 text-slate-100">Novi artikal / oprema</h3>
+            <h3 class="text-xl font-bold mb-4 text-slate-100">Novi artikal</h3>
             <form onsubmit="addInventoryItem(event)" class="space-y-4">
-                <input type="text" id="inv-name" placeholder="Naziv artikla/alata" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
-                <input type="text" id="inv-category" placeholder="Kategorija (npr. Alat, Materijal)" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
-                <input type="number" id="inv-qty" placeholder="Količina" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
-                <input type="text" id="inv-assigned" placeholder="Zaduženo kod (opciono)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
+                <input type="text" id="inv-name" placeholder="Naziv" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                <input type="text" id="inv-category" placeholder="Kategorija" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                <input type="number" id="inv-qty" placeholder="Količina" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                <input type="text" id="inv-assigned" placeholder="Zaduženo" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
                 <div class="flex justify-end gap-2 mt-6">
                     <button type="button" onclick="closeModal('inventory-modal')" class="px-4 py-2 bg-slate-700 rounded-lg text-sm">Otkaži</button>
                     <button type="submit" class="px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium">Sačuvaj</button>
@@ -238,11 +301,11 @@
 
     <div id="client-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
-            <h3 class="text-xl font-bold mb-4 text-slate-100">Novi klijent / partner</h3>
+            <h3 class="text-xl font-bold mb-4 text-slate-100">Novi klijent</h3>
             <form onsubmit="addClient(event)" class="space-y-4">
-                <input type="text" id="client-name" placeholder="Naziv firme/klijenta" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
-                <input type="text" id="client-pib" placeholder="PIB / Matični broj" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
-                <input type="text" id="client-contact" placeholder="Kontakt telefon / Email" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
+                <input type="text" id="client-name" placeholder="Naziv" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                <input type="text" id="client-pib" placeholder="PIB" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                <input type="text" id="client-contact" placeholder="Kontakt" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
                 <div class="flex justify-end gap-2 mt-6">
                     <button type="button" onclick="closeModal('client-modal')" class="px-4 py-2 bg-slate-700 rounded-lg text-sm">Otkaži</button>
                     <button type="submit" class="px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium">Sačuvaj</button>
@@ -253,60 +316,14 @@
 
     <div id="travel-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
-            <h3 class="text-xl font-bold mb-4 text-slate-100">Novi putni nalog</h3>
+            <h3 class="text-xl font-bold mb-4 text-slate-100">Putni nalog</h3>
             <form onsubmit="addTravelLog(event)" class="space-y-4">
-                <input type="text" id="travel-vehicle" placeholder="Vozilo / Registracija" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
-                <input type="text" id="travel-rel" placeholder="Relacija (npr. Beograd - Niš)" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
-                <input type="number" id="travel-km" placeholder="Pređeno kilometara" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
+                <input type="text" id="travel-vehicle" placeholder="Vozilo" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                <input type="text" id="travel-rel" placeholder="Relacija" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
+                <input type="number" id="travel-km" placeholder="Kilometara" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm">
                 <div class="flex justify-end gap-2 mt-6">
                     <button type="button" onclick="closeModal('travel-modal')" class="px-4 py-2 bg-slate-700 rounded-lg text-sm">Otkaži</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium">Evidentiraj</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="folder-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
-        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-sm w-full">
-            <h3 class="text-xl font-bold mb-4 text-slate-100">Kreiraj novi folder</h3>
-            <form onsubmit="createNewFolder(event)" class="space-y-4">
-                <input type="text" id="new-folder-name" placeholder="Naziv foldera (npr. Ugovori)" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none focus:border-blue-500">
-                <div class="flex justify-end gap-2 mt-6">
-                    <button type="button" onclick="closeFolderModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm">Otkaži</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium">Kreiraj</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="upload-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
-        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
-            <h3 class="text-xl font-bold mb-4 text-slate-100">Upload finansijskog dokumenta</h3>
-            <form onsubmit="uploadDocument(event)" class="space-y-4">
-                <input type="text" id="doc-title" placeholder="Naziv / Opis troška" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="number" id="doc-amount" placeholder="Iznos (RSD)" step="0.01" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
-                    <select id="doc-category" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none"></select>
-                </div>
-                <input type="file" id="doc-file" required class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
-                <div class="flex justify-end gap-2 mt-6">
-                    <button type="button" onclick="closeUploadModal()" class="px-4 py-2 bg-slate-700 rounded-lg text-sm">Otkaži</button>
                     <button type="submit" class="px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium">Sačuvaj</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="task-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
-        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
-            <h3 class="text-xl font-bold mb-4 text-slate-100">Novi radni zadatak</h3>
-            <form onsubmit="createTask(event)" class="space-y-4">
-                <input type="text" id="task-title" placeholder="Naslov zadatka" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
-                <textarea id="task-desc" placeholder="Detalji zadatka..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none text-sm" rows="3"></textarea>
-                <select id="task-assignee" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none"></select>
-                <div class="flex justify-end gap-2 mt-6">
-                    <button type="button" onclick="closeTaskModal()" class="px-4 py-2 bg-slate-700 rounded-lg text-sm">Otkaži</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium">Kreiraj zadatak</button>
                 </div>
             </form>
         </div>
@@ -319,6 +336,7 @@
         let currentUserId = 1;
         let allUsers = [];
         let allDocuments = [];
+        let contractsList = [];
         let allTasks = [];
         let hrLogs = [];
         let inventoryItems = [];
@@ -332,11 +350,11 @@
         async function initApp() {
             await fetchUsers();
             await fetchDocuments();
+            await fetchContracts();
             initDashboardChart();
         }
         initApp();
 
-        // Socket Notifikacije u realnom vremenu
         socket.on('new_notification', (data) => {
             unreadNotifs++;
             notifications.unshift(data.text);
@@ -352,30 +370,23 @@
 
         function updateNotifUI() {
             const badge = document.getElementById('notif-badge');
-            if (unreadNotifs > 0) {
-                badge.innerText = unreadNotifs;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-
+            if (unreadNotifs > 0) { badge.innerText = unreadNotifs; badge.classList.remove('hidden'); }
+            else { badge.classList.add('hidden'); }
             const list = document.getElementById('notif-list');
-            if (notifications.length === 0) {
-                list.innerHTML = `<p>Nema novih obaveštenja.</p>`;
-            } else {
-                list.innerHTML = notifications.map(n => `<div class="p-1.5 bg-slate-900/50 rounded border border-slate-700/50">${n}</div>`).join('');
-            }
+            list.innerHTML = notifications.length === 0 ? `<p>Nema obaveštenja.</p>` : notifications.map(n => `<div class="p-1.5 bg-slate-900/50 rounded border border-slate-700/50">${n}</div>`).join('');
         }
 
-        // Dashboard i Grafikoni
         function updateDashboard() {
-            const totalSum = allDocuments.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
-            document.getElementById('dash-total-expenses').innerText = `${totalSum.toLocaleString()} RSD`;
-            document.getElementById('dash-active-tasks').innerText = allTasks.filter(t => t.status !== 'Završeno').length;
-            document.getElementById('dash-inventory-count').innerText = inventoryItems.length;
-            document.getElementById('dash-client-count').innerText = clientsList.length;
+            const totalIncome = allDocuments.filter(d => d.type === 'Prihod' && d.status === 'Odobreno').reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+            const totalExpenses = allDocuments.filter(d => d.type === 'Rashod' && d.status === 'Odobreno').reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+            const netProfit = totalIncome - totalExpenses;
 
-            updateChartData();
+            document.getElementById('dash-total-income').innerText = `${totalIncome.toLocaleString()} RSD`;
+            document.getElementById('dash-total-expenses').innerText = `${totalExpenses.toLocaleString()} RSD`;
+            document.getElementById('dash-net-profit').innerText = `${netProfit.toLocaleString()} RSD`;
+            document.getElementById('dash-active-contracts').innerText = contractsList.length;
+
+            updateChartData(totalIncome, totalExpenses);
         }
 
         function initDashboardChart() {
@@ -383,11 +394,11 @@
             expensesChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Fiskalni računi', 'Fakture', 'Otpremnice', 'Ostalo'],
+                    labels: ['Ukupni Prihodi', 'Ukupni Rashodi', 'Neto Dobit'],
                     datasets: [{
-                        label: 'Ukupno (RSD)',
-                        data: [0, 0, 0, 0],
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6']
+                        label: 'Iznos (RSD)',
+                        data: [0, 0, 0],
+                        backgroundColor: ['#3b82f6', '#f43f5e', '#10b981']
                     }]
                 },
                 options: {
@@ -400,71 +411,48 @@
                     }
                 }
             });
-            updateChartData();
         }
 
-        function updateChartData() {
+        function updateChartData(inc, exp) {
             if (!expensesChart) return;
-            const categories = ['Fiskalni računi', 'Fakture', 'Otpremnice', 'Ostalo'];
-            const sums = categories.map(cat => {
-                return allDocuments
-                    .filter(d => d.category === cat)
-                    .reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
-            });
-
-            expensesChart.data.datasets[0].data = sums;
+            expensesChart.data.datasets[0].data = [inc, exp, inc - exp];
             expensesChart.update();
         }
 
         async function fetchUsers() {
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/users`);
-                allUsers = await res.json();
-                const select = document.getElementById('active-user-select');
-                select.innerHTML = allUsers.map(u => `<option value="${u.id}">${u.name} (${u.role})</option>`).join('');
-                if (allUsers.length > 0) currentUserId = allUsers[0].id;
-
-                const assigneeSelect = document.getElementById('task-assignee');
-                if(assigneeSelect) assigneeSelect.innerHTML = allUsers.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-
-                const tbody = document.getElementById('users-table-body');
-                tbody.innerHTML = allUsers.map(u => `
-                    <tr class="hover:bg-slate-700/30">
-                        <td class="p-3 font-medium text-slate-200">${u.name}</td>
-                        <td class="p-3 text-slate-400">${u.email}</td>
-                        <td class="p-3"><span class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs">${u.role}</span></td>
-                    </tr>
-                `).join('');
-            } catch (err) { console.error(err); }
+            const res = await fetch(`${BACKEND_URL}/api/users`);
+            allUsers = await res.json();
+            const select = document.getElementById('active-user-select');
+            select.innerHTML = allUsers.map(u => `<option value="${u.id}">${u.name} (${u.role})</option>`).join('');
+            if (allUsers.length > 0) currentUserId = allUsers[0].id;
+            document.getElementById('task-assignee').innerHTML = allUsers.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+            document.getElementById('users-table-body').innerHTML = allUsers.map(u => `<tr class="hover:bg-slate-700/30"><td class="p-3">${u.name}</td><td class="p-3 text-slate-400">${u.email}</td><td class="p-3"><span class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs">${u.role}</span></td></tr>`).join('');
         }
 
         function changeActiveUser(id) { currentUserId = parseInt(id); }
 
         async function addNewUser(e) {
             e.preventDefault();
-            const name = document.getElementById('new-user-name').value;
-            const email = document.getElementById('new-user-email').value;
-            const role = document.getElementById('new-user-role').value;
             const res = await fetch(`${BACKEND_URL}/api/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, role })
+                body: JSON.stringify({ name: document.getElementById('new-user-name').value, email: document.getElementById('new-user-email').value, role: document.getElementById('new-user-role').value })
             });
-            if (res.ok) {
-                document.getElementById('add-user-form').reset();
-                await fetchUsers();
-                alert("Korisnik dodat!");
-            }
+            if (res.ok) { document.getElementById('add-user-form').reset(); await fetchUsers(); alert("Dodato!"); }
         }
 
         async function fetchDocuments() {
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/documents`);
-                allDocuments = await res.json();
-                allDocuments = allDocuments.map(d => ({ ...d, status: d.status || 'Na čekanju', amount: d.amount || 0 }));
-                renderFoldersAndDocs();
-                updateDashboard();
-            } catch (err) { console.error(err); }
+            const res = await fetch(`${BACKEND_URL}/api/documents`);
+            allDocuments = await res.json();
+            renderFoldersAndDocs();
+            updateDashboard();
+        }
+
+        async function fetchContracts() {
+            const res = await fetch(`${BACKEND_URL}/api/contracts`);
+            contractsList = await res.json();
+            renderContracts();
+            updateDashboard();
         }
 
         function renderFoldersAndDocs() {
@@ -472,81 +460,59 @@
             const docCategories = [...new Set(allDocuments.map(d => d.category))];
             const allCategories = ['Sve', ...new Set([...defaultCategories, ...docCategories])];
 
-            const foldersContainer = document.getElementById('folders-container');
-            foldersContainer.innerHTML = allCategories.map(cat => `
-                <button onclick="selectFolder('${cat}')" class="px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition ${currentFolder === cat ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">
-                    📁 ${cat}
-                </button>
+            document.getElementById('folders-container').innerHTML = allCategories.map(cat => `
+                <button onclick="selectFolder('${cat}')" class="px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition ${currentFolder === cat ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">📁 ${cat}</button>
             `).join('');
 
-            const selectCategory = document.getElementById('doc-category');
-            const uploadCategories = [...new Set([...defaultCategories, ...docCategories])];
-            selectCategory.innerHTML = uploadCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-
+            document.getElementById('doc-category').innerHTML = [...new Set([...defaultCategories, ...docCategories])].map(cat => `<option value="${cat}">${cat}</option>`).join('');
             filterDocuments();
         }
 
         function filterDocuments() {
-            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            const q = document.getElementById('search-input').value.toLowerCase();
             let filtered = currentFolder === 'Sve' ? allDocuments : allDocuments.filter(d => d.category === currentFolder);
-            if (searchQuery) {
-                filtered = filtered.filter(d => d.title.toLowerCase().includes(searchQuery) || d.file_name.toLowerCase().includes(searchQuery));
-            }
+            if (q) filtered = filtered.filter(d => d.title.toLowerCase().includes(q));
 
-            const totalSum = filtered.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
-            document.getElementById('total-expenses-summary').innerText = `Ukupni iznos stavki: ${totalSum.toLocaleString()} RSD`;
+            const total = filtered.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+            document.getElementById('total-expenses-summary').innerText = `Ukupno stavki: ${total.toLocaleString()} RSD`;
 
-            const grid = document.getElementById('documents-grid');
-            if (filtered.length === 0) {
-                grid.innerHTML = `<p class="text-slate-400 col-span-full">Nema pronađenih stavki.</p>`;
-                return;
-            }
-
-            grid.innerHTML = filtered.map(d => {
-                let statusColor = 'bg-amber-500/20 text-amber-400';
-                if (d.status === 'Odobreno') statusColor = 'bg-blue-500/20 text-blue-400';
-                if (d.status === 'Plaćeno') statusColor = 'bg-emerald-500/20 text-emerald-400';
-
-                return `
-                    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-start gap-2">
-                                <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full font-medium">${d.category}</span>
-                                <span class="text-xs px-2.5 py-1 rounded-full font-medium ${statusColor}">${d.status}</span>
-                            </div>
-                            <h3 class="text-lg font-semibold mt-3 text-slate-100">${d.title}</h3>
-                            <p class="text-xl font-bold text-emerald-400 mt-1">${parseFloat(d.amount).toLocaleString()} RSD</p>
-                            <p class="text-xs text-slate-400 mt-1">Fajl: ${d.file_name} • ${d.timestamp}</p>
+            document.getElementById('documents-grid').innerHTML = filtered.length === 0 ? `<p class="text-slate-400 col-span-full">Nema stavki.</p>` : filtered.map(d => `
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="text-xs bg-slate-700 px-2.5 py-1 rounded-full">${d.category} (${d.type})</span>
+                            <span class="text-xs px-2.5 py-1 rounded-full ${d.status === 'Odobreno' ? 'bg-blue-500/20 text-blue-400' : d.status === 'Plaćeno' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${d.status}</span>
                         </div>
-                        <div class="mt-4 pt-3 border-t border-slate-700/50 flex items-center justify-between gap-2">
-                            <select onchange="updateStatus(${d.id}, this.value)" class="bg-slate-900 text-xs text-slate-300 border border-slate-700 rounded px-2 py-1 outline-none">
-                                <option value="Na čekanju" ${d.status === 'Na čekanju' ? 'selected' : ''}>Na čekanju</option>
-                                <option value="Odobreno" ${d.status === 'Odobreno' ? 'selected' : ''}>Odobreno</option>
-                                <option value="Plaćeno" ${d.status === 'Plaćeno' ? 'selected' : ''}>Plaćeno</option>
-                            </select>
-                            <div class="flex gap-2">
-                                <a href="${d.file_data}" download="${d.file_name}" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded-lg text-xs font-medium transition">Preuzmi</a>
-                                <a href="${d.file_data}" target="_blank" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-lg text-xs font-medium transition">Otvori</a>
-                            </div>
-                        </div>
+                        <h3 class="text-lg font-semibold mt-3 text-slate-100">${d.title}</h3>
+                        <p class="text-xl font-bold ${d.type === 'Prihod' ? 'text-blue-400' : 'text-rose-400'} mt-1">${parseFloat(d.amount).toLocaleString()} RSD</p>
                     </div>
-                `;
-            }).join('');
+                    <div class="mt-4 pt-3 border-t border-slate-700 flex items-center justify-between gap-2">
+                        <select onchange="updateDocStatus(${d.id}, this.value)" class="bg-slate-900 text-xs text-slate-300 border border-slate-700 rounded px-2 py-1 outline-none">
+                            <option value="Na čekanju" ${d.status === 'Na čekanju' ? 'selected' : ''}>Na čekanju</option>
+                            <option value="Odobreno" ${d.status === 'Odobreno' ? 'selected' : ''}>Odobreno</option>
+                            <option value="Plaćeno" ${d.status === 'Plaćeno' ? 'selected' : ''}>Plaćeno</option>
+                        </select>
+                        <a href="${d.file_data}" download="${d.file_name}" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded-lg text-xs font-medium">Preuzmi</a>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function updateStatus(id, newStatus) {
-            const doc = allDocuments.find(d => d.id === id);
-            if (doc) { doc.status = newStatus; filterDocuments(); }
+        async function updateDocStatus(id, status) {
+            await fetch(`${BACKEND_URL}/api/documents/${id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+            await fetchDocuments();
         }
 
-        function selectFolder(folder) { currentFolder = folder; renderFoldersAndDocs(); }
+        function selectFolder(f) { currentFolder = f; renderFoldersAndDocs(); }
         function openFolderModal() { document.getElementById('folder-modal').classList.remove('hidden'); }
         function closeFolderModal() { document.getElementById('folder-modal').classList.add('hidden'); }
-        function createNewFolder(e) {
+        async function createNewFolder(e) {
             e.preventDefault();
-            const name = document.getElementById('new-folder-name').value.trim();
-            if (!name) return;
-            currentFolder = name;
+            currentFolder = document.getElementById('new-folder-name').value.trim();
             closeFolderModal();
             document.getElementById('new-folder-name').value = '';
             renderFoldersAndDocs();
@@ -554,72 +520,76 @@
 
         function openUploadModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
         function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
-
         async function uploadDocument(e) {
             e.preventDefault();
-            const title = document.getElementById('doc-title').value;
-            const amount = document.getElementById('doc-amount').value;
-            const category = document.getElementById('doc-category').value;
-            const fileInput = document.getElementById('doc-file');
-            const file = fileInput.files[0];
-            if (!file) return;
-
+            const file = document.getElementById('doc-file').files[0];
             const reader = new FileReader();
             reader.onload = async function(event) {
-                const res = await fetch(`${BACKEND_URL}/api/documents`, {
+                await fetch(`${BACKEND_URL}/api/documents`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title: `${title} (${amount} RSD)`, category, amount, fileData: event.target.result, fileName: file.name, userId: currentUserId })
+                    body: JSON.stringify({
+                        title: document.getElementById('doc-title').value,
+                        type: document.getElementById('doc-type').value,
+                        amount: document.getElementById('doc-amount').value,
+                        category: document.getElementById('doc-category').value,
+                        fileData: event.target.result,
+                        fileName: file.name,
+                        userId: currentUserId
+                    })
                 });
-                if (res.ok) {
-                    closeUploadModal();
-                    document.getElementById('doc-title').value = '';
-                    document.getElementById('doc-amount').value = '';
-                    fileInput.value = '';
-                    await fetchDocuments();
-                    alert("Uspešno sačuvano!");
-                }
+                closeUploadModal();
+                await fetchDocuments();
+                alert("Uspešno sačuvano!");
             };
             reader.readAsDataURL(file);
         }
 
+        function openContractModal() { document.getElementById('contract-modal').classList.remove('hidden'); }
+        async function addContract(e) {
+            e.preventDefault();
+            await fetch(`${BACKEND_URL}/api/contracts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: document.getElementById('con-title').value,
+                    partner: document.getElementById('con-partner').value,
+                    expiryDate: document.getElementById('con-date').value
+                })
+            });
+            closeModal('contract-modal');
+            await fetchContracts();
+            alert("Ugovor dodat!");
+        }
+        function renderContracts() {
+            document.getElementById('contracts-table-body').innerHTML = contractsList.length === 0 ? `<tr><td colspan="4" class="p-3 text-slate-400">Nema ugovora.</td></tr>` : contractsList.map(c => `
+                <tr class="hover:bg-slate-700/30">
+                    <td class="p-3 font-medium text-slate-200">${c.title}</td>
+                    <td class="p-3 text-slate-400">${c.partner}</td>
+                    <td class="p-3 text-rose-400">${c.expiry_date.split('T')[0]}</td>
+                    <td class="p-3"><span class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs">${c.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Zadaci, Magacin, CRM, Travel, HR ostaju stabilni
         function openTaskModal() { document.getElementById('task-modal').classList.remove('hidden'); }
         function closeTaskModal() { document.getElementById('task-modal').classList.add('hidden'); }
         function createTask(e) {
             e.preventDefault();
-            const title = document.getElementById('task-title').value;
-            const desc = document.getElementById('task-desc').value;
-            const assignee = document.getElementById('task-assignee').value;
-
-            const targetUser = allUsers.find(u => u.name === assignee);
-
-            allTasks.push({ id: Date.now(), title, desc, assignee, status: 'U toku' });
-            socket.emit('assign_task', { title, desc, assignee, assigneeEmail: targetUser ? targetUser.email : null });
-
+            allTasks.push({ id: Date.now(), title: document.getElementById('task-title').value, desc: document.getElementById('task-desc').value, assignee: document.getElementById('task-assignee').value, status: 'U toku' });
+            socket.emit('assign_task', { title: document.getElementById('task-title').value, assignee: document.getElementById('task-assignee').value });
             closeTaskModal();
             renderTasks();
-            updateDashboard();
         }
-        function updateTaskStatus(id, status) {
-            const t = allTasks.find(x => x.id === id);
-            if(t) { t.status = status; renderTasks(); updateDashboard(); }
-        }
+        function updateTaskStatus(id, status) { const t = allTasks.find(x => x.id === id); if(t) { t.status = status; renderTasks(); } }
         function renderTasks() {
-            const grid = document.getElementById('tasks-grid');
-            if(allTasks.length === 0) { grid.innerHTML = `<p class="text-slate-400 col-span-full">Nema zadataka.</p>`; return; }
-            grid.innerHTML = allTasks.map(t => `
+            document.getElementById('tasks-grid').innerHTML = allTasks.length === 0 ? `<p class="text-slate-400 col-span-full">Nema zadataka.</p>` : allTasks.map(t => `
                 <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-start">
-                            <span class="text-xs bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-full font-medium">Za: ${t.assignee}</span>
-                            <span class="text-xs ${t.status === 'Završeno' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'} px-2.5 py-1 rounded-full">${t.status}</span>
-                        </div>
-                        <h3 class="text-lg font-semibold mt-3 text-slate-100">${t.title}</h3>
-                        <p class="text-sm text-slate-400 mt-1">${t.desc}</p>
-                    </div>
+                    <div><span class="text-xs bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-full">Za: ${t.assignee}</span><h3 class="text-lg font-semibold mt-3">${t.title}</h3><p class="text-sm text-slate-400 mt-1">${t.desc}</p></div>
                     <div class="mt-4 pt-3 border-t border-slate-700 flex justify-end gap-2">
-                        <button onclick="updateTaskStatus(${t.id}, 'U toku')" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-xs">U toku</button>
-                        <button onclick="updateTaskStatus(${t.id}, 'Završeno')" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded text-xs">Završi</button>
+                        <button onclick="updateTaskStatus(${t.id}, 'U toku')" class="bg-slate-700 px-3 py-1 rounded text-xs">U toku</button>
+                        <button onclick="updateTaskStatus(${t.id}, 'Završeno')" class="bg-emerald-600 px-3 py-1 rounded text-xs">Završi</button>
                     </div>
                 </div>
             `).join('');
@@ -631,12 +601,8 @@
             inventoryItems.push({ name: document.getElementById('inv-name').value, category: document.getElementById('inv-category').value, qty: document.getElementById('inv-qty').value, assigned: document.getElementById('inv-assigned').value || 'Magacin' });
             closeModal('inventory-modal');
             renderInventory();
-            updateDashboard();
         }
-        function renderInventory() {
-            const tbody = document.getElementById('inventory-table-body');
-            tbody.innerHTML = inventoryItems.map(i => `<tr class="hover:bg-slate-700/30"><td class="p-3 font-medium text-slate-200">${i.name}</td><td class="p-3 text-slate-400">${i.category}</td><td class="p-3 text-emerald-400 font-bold">${i.qty}</td><td class="p-3 text-slate-300">${i.assigned}</td></tr>`).join('');
-        }
+        function renderInventory() { document.getElementById('inventory-table-body').innerHTML = inventoryItems.map(i => `<tr class="hover:bg-slate-700/30"><td class="p-3">${i.name}</td><td class="p-3 text-slate-400">${i.category}</td><td class="p-3 text-emerald-400 font-bold">${i.qty}</td><td class="p-3">${i.assigned}</td></tr>`).join(''); }
 
         function openClientModal() { document.getElementById('client-modal').classList.remove('hidden'); }
         function addClient(e) {
@@ -644,45 +610,35 @@
             clientsList.push({ name: document.getElementById('client-name').value, pib: document.getElementById('client-pib').value, contact: document.getElementById('client-contact').value });
             closeModal('client-modal');
             renderClients();
-            updateDashboard();
         }
-        function renderClients() {
-            const grid = document.getElementById('clients-grid');
-            grid.innerHTML = clientsList.map(c => `<div class="bg-slate-800 border border-slate-700 rounded-xl p-5"><h3 class="text-lg font-bold text-blue-400">${c.name}</h3><p class="text-xs text-slate-400 mt-1">PIB/MB: ${c.pib}</p><p class="text-sm text-slate-300 mt-2">Kontakt: ${c.contact}</p></div>`).join('');
-        }
+        function renderClients() { document.getElementById('clients-grid').innerHTML = clientsList.map(c => `<div class="bg-slate-800 border border-slate-700 rounded-xl p-5"><h3 class="text-lg font-bold text-blue-400">${c.name}</h3><p class="text-xs text-slate-400 mt-1">PIB: ${c.pib}</p><p class="text-sm text-slate-300 mt-2">Kontakt: ${c.contact}</p></div>`).join(''); }
 
         function openTravelModal() { document.getElementById('travel-modal').classList.remove('hidden'); }
         function addTravelLog(e) {
             e.preventDefault();
-            const user = allUsers.find(u => u.id === currentUserId);
-            travelLogs.push({ vehicle: document.getElementById('travel-vehicle').value, rel: document.getElementById('travel-rel').value, km: document.getElementById('travel-km').value, driver: user ? user.name : 'Vozač' });
+            const u = allUsers.find(x => x.id === currentUserId);
+            travelLogs.push({ vehicle: document.getElementById('travel-vehicle').value, rel: document.getElementById('travel-rel').value, km: document.getElementById('travel-km').value, driver: u ? u.name : 'Vozač' });
             closeModal('travel-modal');
             renderTravel();
         }
-        function renderTravel() {
-            const container = document.getElementById('travel-logs-container');
-            container.innerHTML = travelLogs.map(t => `<div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex justify-between items-center"><div><h4 class="font-bold text-slate-200">${t.vehicle} (${t.rel})</h4><p class="text-xs text-slate-400">Vozač: ${t.driver}</p></div><span class="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full font-bold text-sm">${t.km} km</span></div>`).join('');
-        }
+        function renderTravel() { document.getElementById('travel-logs-container').innerHTML = travelLogs.map(t => `<div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex justify-between items-center"><div><h4 class="font-bold text-slate-200">${t.vehicle} (${t.rel})</h4><p class="text-xs text-slate-400">Vozač: ${t.driver}</p></div><span class="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full font-bold text-sm">${t.km} km</span></div>`).join(''); }
 
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
         function logAttendance(type) {
-            const user = allUsers.find(u => u.id === currentUserId);
-            hrLogs.unshift(`📍 ${user ? user.name : 'Korisnik'} - ${type} u ${new Date().toLocaleTimeString()}`);
-            renderHRLogs();
+            const u = allUsers.find(x => x.id === currentUserId);
+            hrLogs.unshift(`📍 ${u ? u.name : 'Korisnik'} - ${type} u ${new Date().toLocaleTimeString()}`);
+            document.getElementById('hr-activity-log').innerHTML = hrLogs.map(l => `<div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50">${l}</div>`).join('');
         }
         function submitLeaveRequest(e) {
             e.preventDefault();
-            const user = allUsers.find(u => u.id === currentUserId);
-            hrLogs.unshift(`🏖️ Odmor: ${user ? user.name : 'Korisnik'} (${document.getElementById('leave-reason').value})`);
-            renderHRLogs();
-        }
-        function renderHRLogs() {
+            const u = allUsers.find(x => x.id === currentUserId);
+            hrLogs.unshift(`🏖️ Odmor: ${u ? u.name : 'Korisnik'} (${document.getElementById('leave-reason').value})`);
             document.getElementById('hr-activity-log').innerHTML = hrLogs.map(l => `<div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50">${l}</div>`).join('');
+            document.getElementById('leave-reason').value = '';
         }
 
         function switchTab(tab) {
-            ['dashboard', 'chat', 'docs', 'tasks', 'hr', 'inventory', 'crm', 'travel', 'users'].forEach(t => {
+            ['dashboard', 'chat', 'docs', 'contracts', 'tasks', 'hr', 'inventory', 'crm', 'travel', 'users'].forEach(t => {
                 document.getElementById(`view-${t}`).classList.add('hidden');
                 document.getElementById(`tab-${t}`).className = 'px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition';
             });
@@ -691,13 +647,9 @@
             if (tab === 'dashboard') updateDashboard();
         }
 
-        function switchChannel(channel) {
-            currentChannel = channel;
-            ['generalni', 'uprava', 'racunovodstvo', 'nabavka-teren', 'obavestenja'].forEach(c => {
-                const btn = document.getElementById(`btn-${c}`);
-                if(btn) btn.className = c === channel ? 'text-left px-3 py-2 rounded-lg bg-blue-600 font-medium transition text-sm' : 'text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm';
-            });
-            socket.emit('join_channel', channel);
+        function switchChannel(ch) {
+            currentChannel = ch;
+            socket.emit('join_channel', ch);
         }
 
         socket.on('connect', () => socket.emit('join_channel', currentChannel));
@@ -709,9 +661,7 @@
         });
 
         function renderMessages(messages) {
-            const container = document.getElementById('chat-messages');
-            container.innerHTML = messages.map(m => `<div class="flex flex-col"><div class="flex items-baseline gap-2"><span class="font-semibold text-blue-400">${m.user}</span><span class="text-xs text-slate-500">${m.timestamp}</span></div><p class="text-slate-200 mt-1">${m.content}</p></div>`).join('');
-            container.scrollTop = container.scrollHeight;
+            document.getElementById('chat-messages').innerHTML = messages.map(m => `<div class="flex flex-col"><div class="flex items-baseline gap-2"><span class="font-semibold text-blue-400">${m.user}</span><span class="text-xs text-slate-500">${m.timestamp}</span></div><p class="text-slate-200 mt-1">${m.content}</p></div>`).join('');
         }
 
         document.getElementById('chat-form').addEventListener('submit', (e) => {

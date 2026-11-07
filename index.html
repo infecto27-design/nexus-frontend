@@ -76,6 +76,7 @@
             <div class="flex items-center gap-1.5 flex-wrap">
                 <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-tab role-admin px-3 py-1.5 rounded-lg font-medium text-xs transition bg-blue-600 text-white shadow-md">📊 Dashboard</button>
                 <button onclick="switchTab('accounting')" id="tab-accounting" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">📈 Knjigovodstvo & SEF</button>
+                <button onclick="switchTab('overtime')" id="tab-overtime" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">⏳ Prekovremeni & Dnevnice</button>
                 <button onclick="switchTab('sites')" id="tab-sites" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🏗️ Gradilišta</button>
                 <button onclick="switchTab('tools')" id="tab-tools" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🧰 Zaduženje alata</button>
                 <button onclick="switchTab('safety')" id="tab-safety" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">👷‍♂️ ZNR & Sertifikati</button>
@@ -109,6 +110,20 @@
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl"><h3 class="text-sm font-bold mb-4 text-slate-200">Odnos Prihoda, Rashoda i Dobiti</h3><div class="h-72"><canvas id="expensesChart"></canvas></div></div>
         </div>
 
+        <!-- NOVI MODUL: PREKOVREMENI SATI I DNEVNICE -->
+        <div id="view-overtime" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden space-y-6 role-admin-view">
+            <div class="flex justify-between items-center flex-wrap gap-4">
+                <div><h2 class="text-2xl font-black text-slate-100">Praćenje Prekovremenih Sati i Dnevnica</h2><p class="text-xs text-slate-400 mt-1">Evidencija dodatnog rada, terenskih dodataka i obračun dodataka na plate.</p></div>
+                <button onclick="openOvertimeModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2.5 rounded-xl text-xs font-bold transition">+ Unesi prekovremene / dnevnicu</button>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto shadow-xl">
+                <table class="w-full text-left border-collapse min-w-[700px]">
+                    <thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Radnik</th><th class="p-4">Datum</th><th class="p-4">Prekovremeni sati</th><th class="p-4">Terenske dnevnice</th><th class="p-4">Napomena</th><th class="p-4 text-right">Ukupan dodatak</th></tr></thead>
+                    <tbody id="overtime-table-body" class="divide-y divide-slate-800 text-xs"></tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- 1. MODUL: GRADILIŠTA I PROJEKTI -->
         <div id="view-sites" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden space-y-6 role-admin-view">
             <div class="flex justify-between items-center flex-wrap gap-4">
@@ -132,7 +147,7 @@
             </div>
         </div>
 
-        <!-- 3. MODUL: ZNR, LEKARSKI PREGLEDI I SERTIFIKATI (SA SKENOM) -->
+        <!-- 3. MODUL: ZNR, LEKARSKI PREGLEDI I SERTIFIKATI -->
         <div id="view-safety" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden space-y-6 role-admin-view">
             <div class="flex justify-between items-center flex-wrap gap-4">
                 <div><h2 class="text-2xl font-black text-slate-100">Zaštita na Radu (ZNR) & Sertifikati</h2><p class="text-xs text-slate-400 mt-1">Praćenje važnosti lekarskih pregleda, licenci i prilaganje skeniranih dokumenata.</p></div>
@@ -273,12 +288,44 @@
         </div>
     </div>
 
-    <!-- MODALI ZA NOVE MODULE -->
-    <div id="site-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Novo gradilište / Projekt</h3><form onsubmit="addSite(event)" class="space-y-3"><input type="text" id="site-name" placeholder="Naziv gradilišta / Investitor" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="site-location" placeholder="Lokacija" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="number" id="site-budget" placeholder="Budžet / Ugovorena vrednost (RSD)" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('site-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
-    
-    <div id="tool-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Zaduženje alata</h3><form onsubmit="addToolAssignment(event)" class="space-y-3"><input type="text" id="tool-name" placeholder="Naziv alata i serijski broj" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="tool-worker" placeholder="Ime majstora" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('tool-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Zaduži</button></div></form></div></div>
+    <!-- MODAL ZA PREKOVREMENE I DNEVNICE -->
+    <div id="overtime-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full">
+            <h3 class="text-lg font-black mb-4">Unos prekovremenih sati i dnevnica</h3>
+            <form onsubmit="addOvertimeRecord(event)" class="space-y-3">
+                <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">Izaberi radnika</label>
+                    <select id="ot-worker" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Prekovremeni sati (h)</label>
+                        <input type="number" id="ot-hours" value="0" step="0.5" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Terenske dnevnice (dana)</label>
+                        <input type="number" id="ot-perdiem" value="0" step="1" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">Datum</label>
+                    <input type="date" id="ot-date" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">Napomena / Opis posla</label>
+                    <input type="text" id="ot-note" placeholder="Npr. Noćni rad / Teren Beograd" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none">
+                </div>
+                <div class="flex justify-end gap-2.5 mt-6">
+                    <button type="button" onclick="closeModal('overtime-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    <!-- ZNR MODAL SA UČITAVANJEM SKENIRANOG DOKUMENTA -->
+    <div id="site-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Novo gradilište / Projekt</h3><form onsubmit="addSite(event)" class="space-y-3"><input type="text" id="site-name" placeholder="Naziv gradilišta / Investitor" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="site-location" placeholder="Lokacija" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="number" id="site-budget" placeholder="Budžet / Ugovorena vrednost (RSD)" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('site-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
+    <div id="tool-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Zaduženje alata</h3><form onsubmit="addToolAssignment(event)" class="space-y-3"><input type="text" id="tool-name" placeholder="Naziv alata i serijski broj" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="tool-worker" placeholder="Ime majstora" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('tool-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Zaduži</button></div></form></div></div>
+    
     <div id="safety-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full">
             <h3 class="text-lg font-black mb-4">ZNR & Lekarski pregled</h3>
@@ -289,18 +336,9 @@
                     <option value="Kurs ZNR">Kurs zaštite na radu</option>
                     <option value="Licenca za mašinu">Licenca za bager / mašinu</option>
                 </select>
-                <div>
-                    <label class="block text-[11px] text-slate-400 mb-1">Datum isteka</label>
-                    <input type="date" id="safety-expiry" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none">
-                </div>
-                <div>
-                    <label class="block text-[11px] text-slate-400 mb-1">Skenirani dokument (PDF / Slika)</label>
-                    <input type="file" id="safety-file" accept="image/*,application/pdf" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-blue-600 file:text-white file:font-semibold">
-                </div>
-                <div class="flex justify-end gap-2.5 mt-6">
-                    <button type="button" onclick="closeModal('safety-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button>
-                </div>
+                <div><label class="block text-[11px] text-slate-400 mb-1">Datum isteka</label><input type="date" id="safety-expiry" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"></div>
+                <div><label class="block text-[11px] text-slate-400 mb-1">Skenirani dokument (PDF / Slika)</label><input type="file" id="safety-file" accept="image/*,application/pdf" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-blue-600 file:text-white file:font-semibold"></div>
+                <div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('safety-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div>
             </form>
         </div>
     </div>
@@ -346,6 +384,7 @@
         let sitesList = [];
         let toolsList = [];
         let safetyList = [];
+        let overtimeList = []; // Lista prekovremenih i dnevnica
 
         let allTasks = [];
         let hrLogs = [];
@@ -361,6 +400,7 @@
         async function initApp() {
             const today = new Date();
             document.getElementById('inv-date').valueAsDate = today;
+            document.getElementById('ot-date').valueAsDate = today;
             await fetchUsers();
 
             const savedUserId = localStorage.getItem('euro_as_user_id');
@@ -445,6 +485,7 @@
             renderSites();
             renderTools();
             renderSafety();
+            renderOvertime();
             initDashboardChart();
             calcInvoice();
             applyRolePermissions();
@@ -468,6 +509,13 @@
             try {
                 const res = await fetch(`${BACKEND_URL}/api/users`);
                 allUsers = await res.json();
+                
+                // Popuni selekt za radnike u modulu za prekovremene
+                const otWorkerSelect = document.getElementById('ot-worker');
+                if (otWorkerSelect) {
+                    otWorkerSelect.innerHTML = allUsers.map(u => `<option value="${u.name}">${u.name} (${u.role})</option>`).join('');
+                }
+
                 document.getElementById('users-table-body').innerHTML = allUsers.map(u => `
                     <tr class="hover:bg-slate-800/40 transition">
                         <td class="p-4 font-semibold text-slate-200">${u.name}</td>
@@ -497,6 +545,40 @@
             document.getElementById('add-user-form').reset();
             await fetchUsers();
             alert(`Uspešno kreiran nalog za radnika: ${name}!`);
+        }
+
+        // NOVE FUNKCIJE ZA PREKOVREMENE I DNEVNICE
+        function openOvertimeModal() { document.getElementById('overtime-modal').classList.remove('hidden'); }
+        function addOvertimeRecord(e) {
+            e.preventDefault();
+            const worker = document.getElementById('ot-worker').value;
+            const hours = parseFloat(document.getElementById('ot-hours').value) || 0;
+            const perDiem = parseInt(document.getElementById('ot-perdiem').value) || 0;
+            const date = document.getElementById('ot-date').value;
+            const note = document.getElementById('ot-note').value;
+
+            // Računica: 1 prekovremeni sat = 500 RSD, 1 dnevnica = 3000 RSD (može se prilagoditi)
+            const totalBonus = (hours * 500) + (perDiem * 3000);
+
+            overtimeList.push({ id: overtimeList.length + 1, worker, hours, perDiem, date, note, totalBonus });
+            closeModal('overtime-modal');
+            document.querySelector('#overtime-modal form').reset();
+            document.getElementById('ot-date').valueAsDate = new Date();
+            renderOvertime();
+            alert("Evidencija prekovremenih sati i dnevnica uspešno sačuvana!");
+        }
+
+        function renderOvertime() {
+            document.getElementById('overtime-table-body').innerHTML = overtimeList.length === 0 ? `<tr><td colspan="6" class="p-4 text-slate-400">Nema unetih prekovremenih sati ni dnevnica.</td></tr>` : overtimeList.map(o => `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="p-4 font-bold text-slate-200">${o.worker}</td>
+                    <td class="p-4 text-slate-400">${o.date}</td>
+                    <td class="p-4 text-amber-400 font-semibold">${o.hours} h</td>
+                    <td class="p-4 text-blue-400 font-semibold">${o.perDiem} dana</td>
+                    <td class="p-4 text-slate-300">${o.note || '-'}</td>
+                    <td class="p-4 text-right font-black text-emerald-400">${o.totalBonus.toLocaleString()} RSD</td>
+                </tr>
+            `).join('');
         }
 
         function openSiteModal() { document.getElementById('site-modal').classList.remove('hidden'); }
@@ -883,7 +965,7 @@
         }
 
         function switchTab(tab) {
-            ['dashboard', 'accounting', 'sites', 'tools', 'safety', 'chat', 'expenses', 'worklog', 'docs', 'generator', 'contracts', 'tasks', 'hr', 'fleet', 'inventory', 'crm', 'travel', 'users'].forEach(t => {
+            ['dashboard', 'accounting', 'overtime', 'sites', 'tools', 'safety', 'chat', 'expenses', 'worklog', 'docs', 'generator', 'contracts', 'tasks', 'hr', 'fleet', 'inventory', 'crm', 'travel', 'users'].forEach(t => {
                 const el = document.getElementById(`view-${t}`);
                 const tabBtn = document.getElementById(`tab-${t}`);
                 if (el) el.classList.add('hidden');

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusConnect - Enterprise ERP & Business Suite</title>
+    <title>Euro AS Company - Poslovni ERP Sistem</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,7 +12,7 @@
 
     <!-- Zaglavlje -->
     <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center flex-wrap gap-3">
-        <h1 class="text-xl font-bold text-blue-400">NexusConnect Enterprise</h1>
+        <h1 class="text-xl font-bold text-blue-400">Euro AS Company</h1>
         <div class="flex items-center gap-1.5 flex-wrap">
             <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-2.5 py-1.5 rounded-lg bg-blue-600 font-medium text-xs transition">📊 Dashboard</button>
             <button onclick="switchTab('chat')" id="tab-chat" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Chat</button>
@@ -572,7 +572,6 @@
             `).join('');
         }
 
-        // Zadaci, Magacin, CRM, Travel, HR ostaju stabilni
         function openTaskModal() { document.getElementById('task-modal').classList.remove('hidden'); }
         function closeTaskModal() { document.getElementById('task-modal').classList.add('hidden'); }
         function createTask(e) {

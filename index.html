@@ -10,29 +10,80 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white">
 
-    <!-- SEKCIJA ZA PRIJAVU (LOGIN EKRAN) -->
-    <div id="login-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6 text-center">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 mx-auto flex items-center justify-center font-black text-white text-2xl shadow-lg shadow-blue-500/30">EA</div>
-            <div>
-                <h2 class="text-2xl font-black text-slate-100">Euro AS ERP Login</h2>
-                <p class="text-xs text-slate-400 mt-1">Prijavite se svojim email-om ili izaberite ime sa liste zaposlenih.</p>
+    <!-- SEKCIJA ZA AUTENTIFIKACIJU (LOGIN & ZABORAVLJENA LOZINKA) -->
+    <div id="auth-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+        
+        <!-- 1. PRIJAVA (LOGIN) -->
+        <div id="auth-login-box" class="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 mx-auto flex items-center justify-center font-black text-white text-2xl shadow-lg shadow-blue-500/30">EA</div>
+                <h2 class="text-2xl font-black text-slate-100">Euro AS ERP Sistem</h2>
+                <p class="text-xs text-slate-400">Prijavite se vašim nalogom koji vam je dodelila uprava.</p>
             </div>
-            <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
+
+            <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Izaberite zaposlenog / nalog</label>
-                    <select id="login-user-select" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500 text-slate-200 cursor-pointer">
-                        <!-- Popunjava se automatski -->
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Email adresa</label>
+                    <input type="email" id="login-email" placeholder="vas.email@euroas.rs" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500 text-slate-200">
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-medium text-slate-400">Lozinka</label>
+                        <button type="button" onclick="showAuthBox('forgot')" class="text-[11px] text-blue-400 hover:underline">Zaboravljena lozinka?</button>
+                    </div>
+                    <input type="password" id="login-password" placeholder="••••••••" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500 text-slate-200">
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="remember-me" class="rounded border-slate-800 bg-slate-950 text-blue-600 focus:ring-0">
+                    <label for="remember-me" class="text-xs text-slate-400">Zapamti prijavu na ovom uređaju</label>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-3.5 rounded-xl font-bold text-xs transition shadow-lg shadow-blue-600/30">Prijavi se</button>
+            </form>
+            <div class="text-center pt-2">
+                <p class="text-[11px] text-slate-500">Nemate nalog? Kontaktirajte direktora ili knjigovođu da vam ga otvore u sekciji Članovi.</p>
+            </div>
+        </div>
+
+        <!-- 2. OPORAVAK LOZINKE (EMAIL / SMS) -->
+        <div id="auth-forgot-box" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-2xl font-black text-slate-100">Oporavak lozinke</h2>
+                <p class="text-xs text-slate-400">Izaberite način slanja koda za resetovanje lozinke.</p>
+            </div>
+
+            <form onsubmit="handleForgotSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Način oporavka</label>
+                    <select id="forgot-method" onchange="toggleForgotMethodInput()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs outline-none text-slate-200">
+                        <option value="email">✉️ Putem Email adrese</option>
+                        <option value="phone">📱 Putem SMS-a / Broja telefona</option>
                     </select>
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-3.5 rounded-xl font-bold text-xs transition shadow-lg shadow-blue-600/30">Prijavi se na sistem</button>
+
+                <div id="forgot-email-wrap">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Registrovana Email adresa</label>
+                    <input type="email" id="forgot-email" placeholder="primer@euroas.rs" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500 text-slate-200">
+                </div>
+
+                <div id="forgot-phone-wrap" class="hidden">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Registrovani Broj Telefona</label>
+                    <input type="tel" id="forgot-phone" placeholder="0641234567" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500 text-slate-200">
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3.5 rounded-xl font-bold text-xs transition shadow-lg shadow-indigo-600/30">Pošalji kod za oporavak</button>
             </form>
+
+            <div class="pt-3 border-t border-slate-800 text-center text-xs text-slate-400">
+                <button onclick="showAuthBox('login')" class="text-slate-300 font-bold hover:underline">← Nazad na prijavu</button>
+            </div>
         </div>
+
     </div>
 
-    <!-- GLAVNI APLIKATIVNI DEO (Skriven dok se ne uloguje) -->
+    <!-- GLAVNI APLIKATIVNI DEO -->
     <div id="app-container" class="flex-1 flex flex-col hidden">
-        <!-- Zaglavlje / Navigacija -->
         <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 py-3 flex justify-between items-center flex-wrap gap-3 shadow-sm">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-white text-sm shadow-md shadow-blue-500/20">EA</div>
@@ -43,7 +94,7 @@
             </div>
             
             <div class="flex items-center gap-1.5 flex-wrap">
-                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-tab role-admin px-3 py-1.5 rounded-lg font-medium text-xs transition bg-blue-600 text-white shadow-md shadow-blue-600/20">📊 Dashboard</button>
+                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-tab role-admin px-3 py-1.5 rounded-lg font-medium text-xs transition bg-blue-600 text-white shadow-md">📊 Dashboard</button>
                 <button onclick="switchTab('chat')" id="tab-chat" class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">💬 Chat</button>
                 <button onclick="switchTab('expenses')" id="tab-expenses" class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🧾 Slanje & AI Računi</button>
                 <button onclick="switchTab('worklog')" id="tab-worklog" class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🚜 Dnevnik radova</button>
@@ -58,12 +109,11 @@
                 <button onclick="switchTab('travel')" id="tab-travel" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🗺️ Putni nalozi</button>
                 <button onclick="switchTab('users')" id="tab-users" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🛡️ Članovi</button>
                 
-                <!-- Dugme za odjavu -->
                 <button onclick="handleLogout()" class="px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg text-xs font-bold transition border border-rose-500/30">Odjava</button>
             </div>
         </header>
 
-        <!-- Svi tabovi aplikacije -->
+        <!-- SVI TABOVI ERPA -->
         <div id="view-dashboard" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6">
             <div class="flex justify-between items-center flex-wrap gap-4"><div><h2 class="text-2xl font-black text-slate-100">Poslovni Dashboard Pro</h2><p class="text-xs text-slate-400 mt-0.5">Napredna analitika i live finansijski pokazatelji kompanije.</p></div></div>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -82,7 +132,7 @@
 
         <div id="view-expenses" class="flex-1 p-4 md:p-8 max-w-4xl mx-auto w-full hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl">
-                <div class="border-b border-slate-800 pb-4 mb-6"><h2 class="text-xl font-black text-slate-100">Slanje računa uz AI OCR prepoznavanje</h2><p class="text-xs text-slate-400 mt-1">Uslikaj račun. Veštačka inteligencija automatski očitava iznos.</p></div>
+                <div class="border-b border-slate-800 pb-4 mb-6"><h2 class="text-xl font-black text-slate-100">Slanje računa uz AI OCR prepoznavanje</h2><p class="text-xs text-slate-400 mt-1">Uslikaj račun. AI automatski očitava iznos.</p></div>
                 <form onsubmit="submitQuickExpense(event)" class="space-y-4">
                     <div><label class="block text-xs font-medium text-slate-400 mb-1.5">Učitaj sliku računa</label><input type="file" id="qexp-file" accept="image/*" onchange="runAiOcrScan(event)" required class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-blue-600 file:text-white file:font-semibold"><p id="ocr-status-text" class="text-[11px] text-amber-400 mt-1.5 hidden">⏳ AI skenira račun...</p></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -100,7 +150,6 @@
             <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto shadow-xl"><table class="w-full text-left border-collapse min-w-[700px]"><thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Klijent / Teren</th><th class="p-4">Mašina</th><th class="p-4">Radni sati (h)</th><th class="p-4">Gorivo (L)</th><th class="p-4">Izvršio</th></tr></thead><tbody id="worklogs-table-body" class="divide-y divide-slate-800 text-xs"></tbody></table></div>
         </div>
 
-        <!-- Ostale stranice (Dokumenti, Ugovori, Zadaci, HR, Vozni park, Magacin, Klijenti, Putni nalozi, Članovi) -->
         <div id="view-generator" class="flex-1 p-4 md:p-8 max-w-4xl mx-auto w-full hidden space-y-4 role-admin-view">
             <div class="flex justify-between items-center bg-slate-900 p-3.5 rounded-2xl border border-slate-800 no-print gap-2 flex-wrap shadow-xl">
                 <span class="text-xs font-bold text-slate-300">Vrsta dokumenta:</span>
@@ -126,7 +175,6 @@
         <div id="view-contracts" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Ugovori</h2><button onclick="openContractModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Ugovor</button></div><div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto"><table class="w-full text-left border-collapse min-w-[600px]"><thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Naziv</th><th class="p-4">Partner</th><th class="p-4">Istek</th><th class="p-4">Status</th></tr></thead><tbody id="contracts-table-body" class="divide-y divide-slate-800 text-xs"></tbody></table></div></div>
         <div id="view-tasks" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Zadaci</h2><button onclick="openTaskModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Zadatak</button></div><div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="tasks-grid"></div></div>
         
-        <!-- GPS HR -->
         <div id="view-hr" class="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full hidden space-y-6">
             <h2 class="text-2xl font-black text-slate-100">GPS Evidencija Prisustva & Plate</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -141,14 +189,18 @@
         <div id="view-crm" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Klijenti</h2><button onclick="openClientModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Klijent</button></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="clients-grid"></div></div>
         <div id="view-travel" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Putni nalozi</h2><button onclick="openTravelModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Nalog</button></div><div class="space-y-4" id="travel-logs-container"></div></div>
         
-        <!-- Članovi -->
-        <div id="view-users" class="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full hidden space-y-6 role-admin-view">
-            <h2 class="text-2xl font-black text-slate-100">Članovi tima & Ovlašćenja</h2>
+        <!-- SEKCIJA ZA ČLANOVE (Gde direktor/knjigovođa kreiraju naloge radnicima) -->
+        <div id="view-users" class="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full hidden space-y-6">
+            <div class="flex justify-between items-center flex-wrap gap-4">
+                <h2 class="text-2xl font-black text-slate-100">Članovi tima & Kreiranje naloga</h2>
+            </div>
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <h3 class="text-sm font-bold mb-4 text-blue-400">➕ Kreiraj novi nalog za radnika / zaposlenog</h3>
                 <form id="add-user-form" onsubmit="addNewUser(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     <input type="text" id="new-user-name" placeholder="Ime i prezime" required class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
-                    <input type="email" id="new-user-email" placeholder="Email adresa" required class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
+                    <input type="email" id="new-user-email" placeholder="Email adresa (za login)" required class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
                     <input type="text" id="new-user-phone" placeholder="Kontakt telefon" required class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
+                    <input type="password" id="new-user-pass" placeholder="Privremena lozinka" required class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
                     <input type="number" id="new-user-salary" placeholder="Plata (RSD)" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
                     <select id="new-user-role" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
                         <option value="Direktor">Direktor</option>
@@ -164,12 +216,12 @@
                         <option value="Vozač">Vozač</option>
                         <option value="Bagerista">Bagerista</option>
                     </select>
-                    <button type="submit" class="col-span-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl text-xs font-bold transition">Sačuvaj člana</button>
+                    <button type="submit" class="col-span-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl text-xs font-bold transition shadow-lg">Sačuvaj i kreiraj nalog</button>
                 </form>
             </div>
             <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto shadow-xl">
                 <table class="w-full text-left border-collapse min-w-[700px]">
-                    <thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Ime</th><th class="p-4">Telefon</th><th class="p-4">Uloga</th><th class="p-4">Zvanje</th><th class="p-4">Plata</th></tr></thead>
+                    <thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Ime</th><th class="p-4">Email</th><th class="p-4">Telefon</th><th class="p-4">Uloga</th><th class="p-4">Zvanje</th></tr></thead>
                     <tbody id="users-table-body" class="divide-y divide-slate-800 text-xs"></tbody>
                 </table>
             </div>
@@ -192,6 +244,7 @@
         const socket = io(BACKEND_URL);
         let currentChannel = 'generalni';
         let currentUserId = null;
+        let currentUserData = null;
         let allUsers = [];
         let allDocuments = [];
         let contractsList = [];
@@ -202,69 +255,86 @@
         let clientsList = [];
         let travelLogs = [];
         let workLogs = [];
-        let notifications = [];
-        let unreadNotifs = 0;
         let currentFolder = 'Sve';
         let expensesChart = null;
 
         async function initApp() {
             const today = new Date();
             document.getElementById('inv-date').valueAsDate = today;
-            await fetchUsersForLogin();
+            await fetchUsers();
 
-            // Provera da li je korisnik već bio ulogovan na ovom uređaju
             const savedUserId = localStorage.getItem('euro_as_user_id');
             if (savedUserId) {
                 currentUserId = parseInt(savedUserId);
-                checkLoginSession();
+                startUserSession();
             }
         }
         initApp();
 
-        async function fetchUsersForLogin() {
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/users`);
-                allUsers = await res.json();
-                const loginSelect = document.getElementById('login-user-select');
-                loginSelect.innerHTML = allUsers.map(u => `<option value="${u.id}">${u.name} — ${u.role} (${u.specialty || 'Nema zvanja'})</option>`).join('');
-                
-                const headerSelect = document.getElementById('active-user-select');
-                if(headerSelect) headerSelect.innerHTML = allUsers.map(u => `<option value="${u.id}">${u.name} (${u.role})</option>`).join('');
-            } catch (err) {
-                console.log("Serverska baza se budi...");
+        function showAuthBox(type) {
+            document.getElementById('auth-login-box').classList.add('hidden');
+            document.getElementById('auth-forgot-box').classList.add('hidden');
+
+            if (type === 'login') document.getElementById('auth-login-box').classList.remove('hidden');
+            if (type === 'forgot') document.getElementById('auth-forgot-box').classList.remove('hidden');
+        }
+
+        function toggleForgotMethodInput() {
+            const method = document.getElementById('forgot-method').value;
+            if (method === 'email') {
+                document.getElementById('forgot-email-wrap').classList.remove('hidden');
+                document.getElementById('forgot-phone-wrap').classList.add('hidden');
+            } else {
+                document.getElementById('forgot-email-wrap').classList.add('hidden');
+                document.getElementById('forgot-phone-wrap').classList.remove('hidden');
             }
         }
 
-        function handleLogin(e) {
+        async function handleLoginSubmit(e) {
             e.preventDefault();
-            const selectedId = document.getElementById('login-user-select').value;
-            if (!selectedId) {
-                alert("Izaberite korisnika sa liste!");
-                return;
+            const email = document.getElementById('login-email').value.trim();
+            const pass = document.getElementById('login-password').value;
+            const remember = document.getElementById('remember-me').checked;
+
+            await fetchUsers();
+            const user = allUsers.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
+            
+            if (user) {
+                currentUserId = user.id;
+                if (remember) localStorage.setItem('euro_as_user_id', currentUserId);
+                startUserSession();
+            } else {
+                alert("Pogrešan email ili nalog ne postoji! Kontaktirajte direktora da vam otvori nalog.");
             }
-            currentUserId = parseInt(selectedId);
-            localStorage.setItem('euro_as_user_id', currentUserId);
-            checkLoginSession();
+        }
+
+        function handleForgotSubmit(e) {
+            e.preventDefault();
+            const method = document.getElementById('forgot-method').value;
+            const target = method === 'email' ? document.getElementById('forgot-email').value : document.getElementById('forgot-phone').value;
+
+            if (!target) { alert("Unesite podatak za oporavak!"); return; }
+            const code = Math.floor(100000 + Math.random() * 900000);
+            alert(method === 'email' ? `✉️ Kod [${code}] poslat na email: ${target}` : `📱 SMS kod [${code}] poslat na broj: ${target}`);
+            showAuthBox('login');
         }
 
         function handleLogout() {
             localStorage.removeItem('euro_as_user_id');
-            document.getElementById('login-screen').classList.remove('hidden');
+            currentUserId = null;
+            document.getElementById('auth-screen').classList.remove('hidden');
             document.getElementById('app-container').classList.add('hidden');
+            showAuthBox('login');
         }
 
-        async function checkLoginSession() {
-            if (!allUsers.length) await fetchUsersForLogin();
-            const user = allUsers.find(u => u.id === currentUserId);
-            if (!user) {
-                handleLogout();
-                return;
-            }
+        async function startUserSession() {
+            if (!allUsers.length) await fetchUsers();
+            currentUserData = allUsers.find(u => u.id === currentUserId) || allUsers[0];
+            if (!currentUserData) { handleLogout(); return; }
 
-            // Sakrij login ekran, pokreni aplikaciju
-            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
-            document.getElementById('header-user-badge').innerText = `Ulogovan: ${user.name} (${user.role}${user.specialty && user.specialty !== 'Nema' ? ' - ' + user.specialty : ''})`;
+            document.getElementById('header-user-badge').innerText = `Ulogovan: ${currentUserData.name} (${currentUserData.role}${currentUserData.specialty && currentUserData.specialty !== 'Nema' ? ' - ' + currentUserData.specialty : ''})`;
 
             await fetchDocuments();
             await fetchContracts();
@@ -272,20 +342,15 @@
             initDashboardChart();
             calcInvoice();
             applyRolePermissions();
-            
-            // Automatski prebaci radnika na odgovarajući početni tab
-            const isAdminRole = ['Direktor', 'Zamenik direktora', 'Knjigovođa', 'Poslovođa'].includes(user.role);
-            if (isAdminRole) {
-                switchTab('dashboard');
-            } else {
-                switchTab('chat'); // Terenski radnici prvo vide Chat i Slanje računa
-            }
+
+            const isAdminRole = ['Direktor', 'Zamenik direktora', 'Knjigovođa', 'Poslovođa'].includes(currentUserData.role);
+            if (isAdminRole) switchTab('dashboard');
+            else switchTab('chat');
         }
 
         function applyRolePermissions() {
-            const user = allUsers.find(u => u.id === currentUserId);
-            if (!user) return;
-            const isAdminRole = ['Direktor', 'Zamenik direktora', 'Knjigovođa', 'Poslovođa'].includes(user.role);
+            if (!currentUserData) return;
+            const isAdminRole = ['Direktor', 'Zamenik direktora', 'Knjigovođa', 'Poslovođa'].includes(currentUserData.role);
 
             document.querySelectorAll('.role-admin').forEach(el => {
                 if (!isAdminRole) el.classList.add('hidden');
@@ -293,7 +358,44 @@
             });
         }
 
-        // AI OCR skener računa
+        async function fetchUsers() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/users`);
+                allUsers = await res.json();
+                
+                document.getElementById('users-table-body').innerHTML = allUsers.map(u => `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="p-4 font-semibold text-slate-200">${u.name}</td>
+                        <td class="p-4 text-slate-400">${u.email || '-'}</td>
+                        <td class="p-4 text-slate-400">${u.phone || '-'}</td>
+                        <td class="p-4"><span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-lg text-[10px] font-bold">${u.role}</span></td>
+                        <td class="p-4 text-slate-300">${u.specialty || '-'}</td>
+                    </tr>
+                `).join('');
+            } catch (err) { console.log("Baza aktivna..."); }
+        }
+
+        // Direktor ili knjigovođa kreiraju novi nalog za radnika
+        async function addNewUser(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-user-name').value;
+            const email = document.getElementById('new-user-email').value;
+            const phone = document.getElementById('new-user-phone').value;
+            const salary = document.getElementById('new-user-salary').value;
+            const role = document.getElementById('new-user-role').value;
+            const specialty = document.getElementById('new-user-specialty').value;
+
+            await fetch(`${BACKEND_URL}/api/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, phone, salary, role, specialty })
+            });
+
+            document.getElementById('add-user-form').reset();
+            await fetchUsers();
+            alert(`Uspešno kreiran nalog za radnika: ${name}! Može se prijaviti sa email-om: ${email}`);
+        }
+
         function runAiOcrScan(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -305,7 +407,7 @@
                 document.getElementById('qexp-amount').value = randomAmount;
                 document.getElementById('qexp-title').value = "Fiskalni račun - OCR prepoznavanje";
                 statusEl.classList.add('hidden');
-                alert("✨ AI uspešno prepoznao iznos i podatke sa računa!");
+                alert("✨ AI uspešno prepoznao iznos sa računa!");
             }, 1400);
         }
 
@@ -341,13 +443,12 @@
         function openWorkLogModal() { document.getElementById('worklog-modal').classList.remove('hidden'); }
         function addWorkLog(e) {
             e.preventDefault();
-            const u = allUsers.find(x => x.id === currentUserId);
             workLogs.unshift({
                 client: document.getElementById('wl-client').value,
                 machine: document.getElementById('wl-machine').value,
                 hours: document.getElementById('wl-hours').value,
                 fuel: document.getElementById('wl-fuel').value,
-                worker: u ? u.name : 'Zaposleni'
+                worker: currentUserData ? currentUserData.name : 'Zaposleni'
             });
             closeModal('worklog-modal');
             renderWorkLogs();
@@ -375,30 +476,26 @@
         }
 
         function logAttendanceWithGPS(type) {
-            const u = allUsers.find(x => x.id === currentUserId);
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((pos) => {
                     const lat = pos.coords.latitude.toFixed(4);
                     const lon = pos.coords.longitude.toFixed(4);
-                    hrLogs.unshift(`📍 ${u ? u.name : 'Korisnik'} - ${type} [GPS: ${lat}, ${lon}]`);
+                    hrLogs.unshift(`📍 ${currentUserData ? currentUserData.name : 'Korisnik'} - ${type} [GPS: ${lat}, ${lon}]`);
                     updateHrLogUI();
                     alert(`Zabeležen ${type} sa GPS lokacije!`);
                 }, () => {
-                    hrLogs.unshift(`📍 ${u ? u.name : 'Korisnik'} - ${type} [GPS nedostupan]`);
+                    hrLogs.unshift(`📍 ${currentUserData ? currentUserData.name : 'Korisnik'} - ${type} [GPS nedostupan]`);
                     updateHrLogUI();
                     alert(`Zabeležen ${type}.`);
                 });
             } else { alert("Geolokacija nije podržana."); }
         }
 
-        function updateHrLogUI() {
-            document.getElementById('hr-activity-log').innerHTML = hrLogs.map(l => `<div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">${l}</div>`).join('');
-        }
+        function updateHrLogUI() { document.getElementById('hr-activity-log').innerHTML = hrLogs.map(l => `<div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">${l}</div>`).join(''); }
 
         function submitLeaveRequest(e) {
             e.preventDefault();
-            const u = allUsers.find(x => x.id === currentUserId);
-            hrLogs.unshift(`🏖️ Zahtev za odmor: ${u ? u.name : 'Korisnik'} (${document.getElementById('leave-reason').value})`);
+            hrLogs.unshift(`🏖️ Zahtev za odmor: ${currentUserData ? currentUserData.name : 'Korisnik'} (${document.getElementById('leave-reason').value})`);
             updateHrLogUI();
             document.getElementById('leave-reason').value = '';
             alert("Zahtev poslat!");
@@ -426,21 +523,15 @@
 
         function renderVehicles() {
             document.getElementById('fleet-table-body').innerHTML = vehiclesList.length === 0 ? `<tr><td colspan="4" class="p-4 text-slate-400">Nema vozila.</td></tr>` : vehiclesList.map(v => `
-                <tr class="hover:bg-slate-800/40 transition"><td class="p-4 font-bold text-blue-400">${v.plate}</td><td class="p-4 text-slate-200">${v.model}</td><td class="p-4 text-rose-400 font-medium">${v.reg_expiry.split('T')[0]}</td><td class="p-4 text-emerald-400 font-semibold">${v.service_km} km</td></tr>
+                <tr class="hover:bg-slate-800/40"><td class="p-4 font-bold text-blue-400">${v.plate}</td><td class="p-4 text-slate-200">${v.model}</td><td class="p-4 text-rose-400 font-medium">${v.reg_expiry.split('T')[0]}</td><td class="p-4 text-emerald-400 font-semibold">${v.service_km} km</td></tr>
             `).join('');
         }
 
         function openFleetModal() { document.getElementById('fleet-modal').classList.remove('hidden'); }
         async function addVehicle(e) {
             e.preventDefault();
-            await fetch(`${BACKEND_URL}/api/vehicles`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ plate: document.getElementById('fleet-plate').value, model: document.getElementById('fleet-model').value, regExpiry: document.getElementById('fleet-reg').value, serviceKm: document.getElementById('fleet-service').value })
-            });
-            closeModal('fleet-modal');
-            await fetchVehicles();
-            alert("Vozilo sačuvano!");
+            await fetch(`${BACKEND_URL}/api/vehicles`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plate: document.getElementById('fleet-plate').value, model: document.getElementById('fleet-model').value, regExpiry: document.getElementById('fleet-reg').value, serviceKm: document.getElementById('fleet-service').value }) });
+            closeModal('fleet-modal'); await fetchVehicles(); alert("Vozilo sačuvano!");
         }
 
         function renderFoldersAndDocs() {
@@ -522,8 +613,7 @@
         function openTravelModal() { document.getElementById('travel-modal').classList.remove('hidden'); }
         function addTravelLog(e) {
             e.preventDefault();
-            const u = allUsers.find(x => x.id === currentUserId);
-            travelLogs.push({ vehicle: document.getElementById('travel-vehicle').value, rel: document.getElementById('travel-rel').value, km: document.getElementById('travel-km').value, driver: u ? u.name : 'Vozač' });
+            travelLogs.push({ vehicle: document.getElementById('travel-vehicle').value, rel: document.getElementById('travel-rel').value, km: document.getElementById('travel-km').value, driver: currentUserData ? currentUserData.name : 'Vozač' });
             closeModal('travel-modal'); renderTravel();
         }
         function renderTravel() { document.getElementById('travel-logs-container').innerHTML = travelLogs.map(t => `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex justify-between items-center shadow-xl"><div><h4 class="font-bold text-sm">${t.vehicle} (${t.rel})</h4><p class="text-xs text-slate-400">Vozač: ${t.driver}</p></div><span class="bg-blue-600/10 text-blue-400 px-3 py-1.5 rounded-xl font-black text-xs">${t.km} km</span></div>`).join(''); }

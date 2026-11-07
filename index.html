@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusConnect - Interni Chat</title>
+    <title>NexusConnect - Interni Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
@@ -13,12 +13,14 @@
     <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center">
         <h1 class="text-xl font-bold text-blue-400">NexusConnect</h1>
         <div class="flex items-center gap-3">
-            <span id="current-user" class="text-sm bg-slate-700 px-3 py-1 rounded-full">Korisnik: Jovan</span>
+            <button onclick="switchTab('chat')" id="tab-chat" class="px-3 py-1.5 rounded-lg bg-blue-600 font-medium text-sm transition">Chat</button>
+            <button onclick="switchTab('docs')" id="tab-docs" class="px-3 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-sm transition">Dokumenti</button>
+            <span id="current-user" class="text-sm bg-slate-700 px-3 py-1 rounded-full ml-2">Jovan (Zaposleni)</span>
         </div>
     </header>
 
     <!-- Glavni sadržaj -->
-    <div class="flex flex-1 overflow-hidden">
+    <div id="view-chat" class="flex flex-1 overflow-hidden">
         <!-- Sidebar - Kanali -->
         <div class="w-64 bg-slate-800/50 border-r border-slate-700 p-4 flex flex-col gap-2">
             <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Kanali</h2>
@@ -29,10 +31,9 @@
         <!-- Chat Sekcija -->
         <div class="flex-1 flex flex-col bg-slate-900">
             <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4">
-                <!-- Poruke se učitavaju ovde -->
+                <!-- Poruke -->
             </div>
 
-            <!-- Polje za slanje poruke -->
             <form id="chat-form" class="p-4 bg-slate-800 border-t border-slate-700 flex gap-2">
                 <input type="text" id="message-input" placeholder="Napišite poruku..." autocomplete="off"
                     class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
@@ -41,55 +42,60 @@
         </div>
     </div>
 
+    <!-- Dokumenti Sekcija (Inicijalno sakrivena) -->
+    <div id="view-docs" class="flex-1 p-6 overflow-y-auto hidden">
+        <h2 class="text-2xl font-bold mb-4 text-slate-100">Interni Dokumenti i Procedure</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="documents-grid">
+            <!-- Dokumenti se učitavaju ovde -->
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                <div>
+                    <span class="text-xs bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-full font-medium">HR / Politika</span>
+                    <h3 class="text-lg font-semibold mt-3 text-slate-100">Pravilnik o radu na daljinu</h3>
+                    <p class="text-sm text-slate-400 mt-1">Smernice i pravila ponašanja za zaposlene koji rade od kuće.</p>
+                </div>
+                <a href="#" class="mt-6 inline-flex items-center justify-center bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm font-medium transition">Preuzmi dokument</a>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // VAŽNO: Ovde ispod zamenite link sa vašim pravim Render backend linkom!
-        const BACKEND_URL = 'https://tvoj-render-link.onrender.com';
-        
+        const BACKEND_URL = 'https://tvoj-render-link.onrender.com'; // Zamenite vašim linkom
         const socket = io(BACKEND_URL);
         let currentChannel = 'general';
-        const userId = 3; // Jovan (employee)
+        const userId = 3; 
+
+        function switchTab(tab) {
+            if (tab === 'chat') {
+                document.getElementById('view-chat').className = 'flex flex-1 overflow-hidden';
+                document.getElementById('view-docs').className = 'flex-1 p-6 overflow-y-auto hidden';
+                document.getElementById('tab-chat').className = 'px-3 py-1.5 rounded-lg bg-blue-600 font-medium text-sm transition';
+                document.getElementById('tab-docs').className = 'px-3 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-sm transition';
+            } else {
+                document.getElementById('view-chat').className = 'flex flex-1 overflow-hidden hidden';
+                document.getElementById('view-docs').className = 'flex-1 p-6 overflow-y-auto';
+                document.getElementById('tab-docs').className = 'px-3 py-1.5 rounded-lg bg-blue-600 font-medium text-sm transition';
+                document.getElementById('tab-chat').className = 'px-3 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-sm transition';
+            }
+        }
 
         function switchChannel(channel) {
             currentChannel = channel;
             document.getElementById('btn-general').className = channel === 'general' ? 'text-left px-3 py-2 rounded-lg bg-blue-600 font-medium transition' : 'text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition';
             document.getElementById('btn-announcements').className = channel === 'announcements' ? 'text-left px-3 py-2 rounded-lg bg-blue-600 font-medium transition' : 'text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition';
-            
             socket.emit('join_channel', channel);
         }
 
-        socket.on('connect', () => {
-            socket.emit('join_channel', currentChannel);
-        });
-
-        socket.on('load_messages', (messages) => {
-            renderMessages(messages);
-        });
-
-        socket.on('receive_message', (message) => {
+        socket.on('connect', () => socket.emit('join_channel', currentChannel));
+        socket.on('load_messages', (msgs) => renderMessages(msgs));
+        socket.on('receive_message', (msg) => {
             const container = document.getElementById('chat-messages');
-            container.innerHTML += `
-                <div class="flex flex-col">
-                    <div class="flex items-baseline gap-2">
-                        <span class="font-semibold text-blue-400">${message.user}</span>
-                        <span class="text-xs text-slate-500">${message.timestamp}</span>
-                    </div>
-                    <p class="text-slate-200 mt-1">${message.content}</p>
-                </div>
-            `;
+            container.innerHTML += `<div class="flex flex-col"><div class="flex items-baseline gap-2"><span class="font-semibold text-blue-400">${msg.user}</span><span class="text-xs text-slate-500">${msg.timestamp}</span></div><p class="text-slate-200 mt-1">${msg.content}</p></div>`;
             container.scrollTop = container.scrollHeight;
         });
 
         function renderMessages(messages) {
             const container = document.getElementById('chat-messages');
-            container.innerHTML = messages.map(m => `
-                <div class="flex flex-col">
-                    <div class="flex items-baseline gap-2">
-                        <span class="font-semibold text-blue-400">${m.user}</span>
-                        <span class="text-xs text-slate-500">${m.timestamp}</span>
-                    </div>
-                    <p class="text-slate-200 mt-1">${m.content}</p>
-                </div>
-            `).join('');
+            container.innerHTML = messages.map(m => `<div class="flex flex-col"><div class="flex items-baseline gap-2"><span class="font-semibold text-blue-400">${m.user}</span><span class="text-xs text-slate-500">${m.timestamp}</span></div><p class="text-slate-200 mt-1">${m.content}</p></div>`).join('');
             container.scrollTop = container.scrollHeight;
         }
 
@@ -97,13 +103,7 @@
             e.preventDefault();
             const input = document.getElementById('message-input');
             if (!input.value.trim()) return;
-
-            socket.emit('send_message', {
-                channel: currentChannel,
-                userId: userId,
-                content: input.value
-            });
-
+            socket.emit('send_message', { channel: currentChannel, userId: userId, content: input.value });
             input.value = '';
         });
     </script>

@@ -14,13 +14,12 @@
         <h1 class="text-xl font-bold text-blue-400">NexusConnect</h1>
         <div class="flex items-center gap-2 flex-wrap">
             <button onclick="switchTab('chat')" id="tab-chat" class="px-3 py-1.5 rounded-lg bg-blue-600 font-medium text-sm transition">Chat</button>
-            <button onclick="switchTab('docs')" id="tab-docs" class="px-3 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-sm transition">Dokumenti i Računi</button>
+            <button onclick="switchTab('docs')" id="tab-docs" class="px-3 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-sm transition">Dokumenti i Folderi</button>
             <button onclick="switchTab('users')" id="tab-users" class="px-3 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-sm transition">Članovi</button>
             
             <div class="flex items-center gap-2 ml-4 bg-slate-700 px-3 py-1 rounded-lg">
                 <span class="text-xs text-slate-400">Korisnik:</span>
                 <select id="active-user-select" onchange="changeActiveUser(this.value)" class="bg-slate-800 text-slate-100 text-sm rounded px-2 py-1 outline-none">
-                    <!-- Učitava se dinamički -->
                 </select>
             </div>
         </div>
@@ -45,13 +44,22 @@
         </div>
     </div>
 
-    <!-- 2. Dokumenti i Računi Sekcija -->
-    <div id="view-docs" class="flex-1 p-6 overflow-y-auto hidden">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-slate-100">Fiskalni Računi, Fakture i Otpremnice</h2>
-            <button onclick="openUploadModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition">+ Dodaj novi dokument / račun</button>
+    <!-- 2. Dokumenti i Folderi Sekcija -->
+    <div id="view-docs" class="flex-1 p-6 overflow-y-auto hidden flex flex-col">
+        <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+            <h2 class="text-2xl font-bold text-slate-100">Arhiva po Folderima</h2>
+            <div class="flex gap-2">
+                <button onclick="openFolderModal()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-medium text-sm transition">+ Kreiraj novi folder</button>
+                <button onclick="openUploadModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition">+ Dodaj dokument u folder</button>
+            </div>
+        </div>
+
+        <!-- Lista Folderčića / Kategorija -->
+        <div id="folders-container" class="flex gap-2 overflow-x-auto pb-4 mb-6 border-b border-slate-700">
+            <!-- Folderi se učitavaju dinamički -->
         </div>
         
+        <!-- Prikaz fajlova izabranog foldera -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="documents-grid">
             <!-- Dokumenti se učitavaju ovde -->
         </div>
@@ -85,28 +93,41 @@
                     </tr>
                 </thead>
                 <tbody id="users-table-body" class="divide-y divide-slate-700 text-sm">
-                    <!-- Korisnici -->
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Modal za upload dokumenta -->
-    <div id="upload-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4">
+    <!-- Modal za kreiranje novog foldera -->
+    <div id="folder-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-sm w-full">
+            <h3 class="text-xl font-bold mb-4 text-slate-100">Kreiraj novi folder</h3>
+            <form onsubmit="createNewFolder(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Naziv foldera (npr. Ugovori, Garancije)</label>
+                    <input type="text" id="new-folder-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none focus:border-blue-500">
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeFolderModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm">Otkaži</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium">Kreiraj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal za upload dokumenta u folder -->
+    <div id="upload-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
-            <h3 class="text-xl font-bold mb-4 text-slate-100">Upload novog dokumenta</h3>
+            <h3 class="text-xl font-bold mb-4 text-slate-100">Upload dokumenta u folder</h3>
             <form onsubmit="uploadDocument(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">Naziv dokumenta / Opis (npr. Račun za gorivo)</label>
+                    <label class="block text-xs text-slate-400 mb-1">Naziv / Opis stavke</label>
                     <input type="text" id="doc-title" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none focus:border-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">Kategorija</label>
+                    <label class="block text-xs text-slate-400 mb-1">Izaberi folder</label>
                     <select id="doc-category" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
-                        <option value="Fiskalni račun">Fiskalni račun</option>
-                        <option value="Faktura">Faktura</option>
-                        <option value="Otpremnica">Otpremnica</option>
-                        <option value="Ostalo">Ostalo</option>
+                        <!-- Folderi se učitavaju dinamički -->
                     </select>
                 </div>
                 <div>
@@ -122,15 +143,15 @@
     </div>
 
     <script>
-        // Zamenite donji link vašim stvarnim Render URL-om
-        const BACKEND_URL = 'https://tvoj-render-link.onrender.com';
+        const BACKEND_URL = 'https://tvoj-render-link.onrender.com'; // Zamenite vašim linkom
         
         const socket = io(BACKEND_URL);
         let currentChannel = 'general';
         let currentUserId = 1;
         let allUsers = [];
+        let allDocuments = [];
+        let currentFolder = 'Sve';
 
-        // Inicijalno učitavanje podataka
         async function initApp() {
             await fetchUsers();
             await fetchDocuments();
@@ -158,9 +179,7 @@
             }
         }
 
-        function changeActiveUser(id) {
-            currentUserId = parseInt(id);
-        }
+        function changeActiveUser(id) { currentUserId = parseInt(id); }
 
         async function addNewUser(e) {
             e.preventDefault();
@@ -179,50 +198,85 @@
                     await fetchUsers();
                     alert("Korisnik uspešno dodat!");
                 }
-            } catch (err) {
-                alert("Greška pri dodavanju korisnika.");
-            }
+            } catch (err) { alert("Greška pri dodavanju korisnika."); }
         }
 
         async function fetchDocuments() {
             try {
                 const res = await fetch(`${BACKEND_URL}/api/documents`);
-                const docs = await res.json();
-                const grid = document.getElementById('documents-grid');
-                
-                if (docs.length === 0) {
-                    grid.innerHTML = `<p class="text-slate-400 col-span-full">Nema sačuvanih dokumenata ili računa.</p>`;
-                    return;
-                }
-
-                grid.innerHTML = docs.map(d => `
-                    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-start">
-                                <span class="text-xs bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-full font-medium">${d.category}</span>
-                                <span class="text-xs text-slate-500">${d.timestamp}</span>
-                            </div>
-                            <h3 class="text-lg font-semibold mt-3 text-slate-100">${d.title}</h3>
-                            <p class="text-xs text-slate-400 mt-1">Postavio: ${d.uploader}</p>
-                        </div>
-                        <div class="mt-6 flex gap-2">
-                            <a href="${d.file_data}" download="${d.file_name}" class="flex-1 text-center bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-sm font-medium transition">Preuzmi</a>
-                            <a href="${d.file_data}" target="_blank" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm font-medium transition">Pogledaj</a>
-                        </div>
-                    </div>
-                `).join('');
+                allDocuments = await res.json();
+                renderFoldersAndDocs();
             } catch (err) {
                 console.error("Greška pri učitavanju dokumenata:", err);
             }
         }
 
-        function openUploadModal() {
-            document.getElementById('upload-modal').classList.remove('hidden');
+        function renderFoldersAndDocs() {
+            // Izvucite jedinstvene foldere (kategorije) iz dokumenata + podrazumevani
+            const defaultCategories = ['Fiskalni računi', 'Fakture', 'Otpremnice'];
+            const docCategories = [...new Set(allDocuments.map(d => d.category))];
+            const allCategories = ['Sve', ...new Set([...defaultCategories, ...docCategories])];
+
+            // Renderovanje foldera na vrhu
+            const foldersContainer = document.getElementById('folders-container');
+            foldersContainer.innerHTML = allCategories.map(cat => `
+                <button onclick="selectFolder('${cat}')" class="px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition ${currentFolder === cat ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">
+                    📁 ${cat}
+                </button>
+            `).join('');
+
+            // Popunjavanje padajućeg menija u modalu za upload
+            const selectCategory = document.getElementById('doc-category');
+            const uploadCategories = [...new Set([...defaultCategories, ...docCategories])];
+            selectCategory.innerHTML = uploadCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+
+            // Filtriranje dokumenata po izabranom folderu
+            const filteredDocs = currentFolder === 'Sve' ? allDocuments : allDocuments.filter(d => d.category === currentFolder);
+
+            const grid = document.getElementById('documents-grid');
+            if (filteredDocs.length === 0) {
+                grid.innerHTML = `<p class="text-slate-400 col-span-full">Nema sačuvanih stavki u ovom folderu.</p>`;
+                return;
+            }
+
+            grid.innerHTML = filteredDocs.map(d => `
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-full font-medium">${d.category}</span>
+                            <span class="text-xs text-slate-500">${d.timestamp}</span>
+                        </div>
+                        <h3 class="text-lg font-semibold mt-3 text-slate-100">${d.title}</h3>
+                        <p class="text-xs text-slate-400 mt-1">Fajl: ${d.file_name} • Postavio: ${d.uploader}</p>
+                    </div>
+                    <div class="mt-6 flex gap-2">
+                        <a href="${d.file_data}" download="${d.file_name}" class="flex-1 text-center bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-sm font-medium transition">Preuzmi</a>
+                        <a href="${d.file_data}" target="_blank" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm font-medium transition">Pogledaj</a>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function closeUploadModal() {
-            document.getElementById('upload-modal').classList.add('hidden');
+        function selectFolder(folder) {
+            currentFolder = folder;
+            renderFoldersAndDocs();
         }
+
+        function openFolderModal() { document.getElementById('folder-modal').classList.remove('hidden'); }
+        function closeFolderModal() { document.getElementById('folder-modal').classList.add('hidden'); }
+
+        function createNewFolder(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-folder-name').value.trim();
+            if (!name) return;
+            currentFolder = name;
+            closeFolderModal();
+            document.getElementById('new-folder-name').value = '';
+            renderFoldersAndDocs();
+        }
+
+        function openUploadModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
+        function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
 
         async function uploadDocument(e) {
             e.preventDefault();
@@ -235,7 +289,6 @@
 
             const reader = new FileReader();
             reader.onload = async function(event) {
-                const fileData = event.target.result;
                 try {
                     const res = await fetch(`${BACKEND_URL}/api/documents`, {
                         method: 'POST',
@@ -243,7 +296,7 @@
                         body: JSON.stringify({
                             title,
                             category,
-                            fileData,
+                            fileData: event.target.result,
                             fileName: file.name,
                             userId: currentUserId
                         })
@@ -254,16 +307,13 @@
                         document.getElementById('doc-title').value = '';
                         fileInput.value = '';
                         await fetchDocuments();
-                        alert("Dokument/račun uspešno sačuvan!");
+                        alert("Stavka uspešno sačuvana u folder!");
                     }
-                } catch (err) {
-                    alert("Greška pri uploudu fajla.");
-                }
+                } catch (err) { alert("Greška pri uploudu fajla."); }
             };
             reader.readAsDataURL(file);
         }
 
-        // Tab navigacija
         function switchTab(tab) {
             ['chat', 'docs', 'users'].forEach(t => {
                 document.getElementById(`view-${t}`).classList.add('hidden');

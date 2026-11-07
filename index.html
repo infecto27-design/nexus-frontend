@@ -46,22 +46,26 @@
 
     <!-- 2. Dokumenti i Folderi Sekcija -->
     <div id="view-docs" class="flex-1 p-6 overflow-y-auto hidden flex flex-col">
-        <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-            <h2 class="text-2xl font-bold text-slate-100">Arhiva po Folderima</h2>
+        <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+            <h2 class="text-2xl font-bold text-slate-100">Arhiva i Fakture</h2>
             <div class="flex gap-2">
-                <button onclick="openFolderModal()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-medium text-sm transition">+ Kreiraj novi folder</button>
-                <button onclick="openUploadModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition">+ Dodaj dokument u folder</button>
+                <button onclick="openFolderModal()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-medium text-sm transition">+ Novi folder</button>
+                <button onclick="openUploadModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition">+ Dodaj dokument</button>
             </div>
+        </div>
+
+        <!-- Traka za pretragu -->
+        <div class="mb-4">
+            <input type="text" id="search-input" oninput="filterDocuments()" placeholder="Pretraži račune ili fakture po nazivu..." 
+                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 outline-none focus:border-blue-500 text-sm">
         </div>
 
         <!-- Lista Folderčića / Kategorija -->
         <div id="folders-container" class="flex gap-2 overflow-x-auto pb-4 mb-6 border-b border-slate-700">
-            <!-- Folderi se učitavaju dinamički -->
         </div>
         
-        <!-- Prikaz fajlova izabranog foldera -->
+        <!-- Prikaz fajlova -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="documents-grid">
-            <!-- Dokumenti se učitavaju ovde -->
         </div>
     </div>
 
@@ -98,15 +102,12 @@
         </div>
     </div>
 
-    <!-- Modal za kreiranje novog foldera -->
+    <!-- Modali -->
     <div id="folder-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-sm w-full">
             <h3 class="text-xl font-bold mb-4 text-slate-100">Kreiraj novi folder</h3>
             <form onsubmit="createNewFolder(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Naziv foldera (npr. Ugovori, Garancije)</label>
-                    <input type="text" id="new-folder-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none focus:border-blue-500">
-                </div>
+                <input type="text" id="new-folder-name" placeholder="Naziv foldera (npr. Ugovori)" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none focus:border-blue-500">
                 <div class="flex justify-end gap-2 mt-6">
                     <button type="button" onclick="closeFolderModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm">Otkaži</button>
                     <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium">Kreiraj</button>
@@ -115,10 +116,9 @@
         </div>
     </div>
 
-    <!-- Modal za upload dokumenta u folder -->
     <div id="upload-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
-            <h3 class="text-xl font-bold mb-4 text-slate-100">Upload dokumenta u folder</h3>
+            <h3 class="text-xl font-bold mb-4 text-slate-100">Upload dokumenta</h3>
             <form onsubmit="uploadDocument(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Naziv / Opis stavke</label>
@@ -126,9 +126,7 @@
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Izaberi folder</label>
-                    <select id="doc-category" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none">
-                        <!-- Folderi se učitavaju dinamički -->
-                    </select>
+                    <select id="doc-category" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none"></select>
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Izaberi fajl (slika ili PDF)</label>
@@ -144,7 +142,6 @@
 
     <script>
         const BACKEND_URL = 'https://tvoj-render-link.onrender.com'; // Zamenite vašim linkom
-        
         const socket = io(BACKEND_URL);
         let currentChannel = 'general';
         let currentUserId = 1;
@@ -174,9 +171,7 @@
                         <td class="p-3"><span class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs">${u.role}</span></td>
                     </tr>
                 `).join('');
-            } catch (err) {
-                console.error("Greška pri učitavanju korisnika:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         function changeActiveUser(id) { currentUserId = parseInt(id); }
@@ -186,38 +181,33 @@
             const name = document.getElementById('new-user-name').value;
             const email = document.getElementById('new-user-email').value;
             const role = document.getElementById('new-user-role').value;
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/users`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, role })
-                });
-                if (res.ok) {
-                    document.getElementById('add-user-form').reset();
-                    await fetchUsers();
-                    alert("Korisnik uspešno dodat!");
-                }
-            } catch (err) { alert("Greška pri dodavanju korisnika."); }
+            const res = await fetch(`${BACKEND_URL}/api/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, role })
+            });
+            if (res.ok) {
+                document.getElementById('add-user-form').reset();
+                await fetchUsers();
+                alert("Korisnik dodat!");
+            }
         }
 
         async function fetchDocuments() {
             try {
                 const res = await fetch(`${BACKEND_URL}/api/documents`);
                 allDocuments = await res.json();
+                // Dodajemo podrazumevani status ako ne postoji u bazi
+                allDocuments = allDocuments.map(d => ({ ...d, status: d.status || 'Na čekanju' }));
                 renderFoldersAndDocs();
-            } catch (err) {
-                console.error("Greška pri učitavanju dokumenata:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         function renderFoldersAndDocs() {
-            // Izvucite jedinstvene foldere (kategorije) iz dokumenata + podrazumevani
             const defaultCategories = ['Fiskalni računi', 'Fakture', 'Otpremnice'];
             const docCategories = [...new Set(allDocuments.map(d => d.category))];
             const allCategories = ['Sve', ...new Set([...defaultCategories, ...docCategories])];
 
-            // Renderovanje foldera na vrhu
             const foldersContainer = document.getElementById('folders-container');
             foldersContainer.innerHTML = allCategories.map(cat => `
                 <button onclick="selectFolder('${cat}')" class="px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition ${currentFolder === cat ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">
@@ -225,46 +215,69 @@
                 </button>
             `).join('');
 
-            // Popunjavanje padajućeg menija u modalu za upload
             const selectCategory = document.getElementById('doc-category');
             const uploadCategories = [...new Set([...defaultCategories, ...docCategories])];
             selectCategory.innerHTML = uploadCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
 
-            // Filtriranje dokumenata po izabranom folderu
-            const filteredDocs = currentFolder === 'Sve' ? allDocuments : allDocuments.filter(d => d.category === currentFolder);
+            filterDocuments();
+        }
+
+        function filterDocuments() {
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            
+            let filtered = currentFolder === 'Sve' ? allDocuments : allDocuments.filter(d => d.category === currentFolder);
+            if (searchQuery) {
+                filtered = filtered.filter(d => d.title.toLowerCase().includes(searchQuery) || d.file_name.toLowerCase().includes(searchQuery));
+            }
 
             const grid = document.getElementById('documents-grid');
-            if (filteredDocs.length === 0) {
-                grid.innerHTML = `<p class="text-slate-400 col-span-full">Nema sačuvanih stavki u ovom folderu.</p>`;
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p class="text-slate-400 col-span-full">Nema pronađenih stavki.</p>`;
                 return;
             }
 
-            grid.innerHTML = filteredDocs.map(d => `
-                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-start">
-                            <span class="text-xs bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-full font-medium">${d.category}</span>
-                            <span class="text-xs text-slate-500">${d.timestamp}</span>
+            grid.innerHTML = filtered.map(d => {
+                let statusColor = 'bg-amber-500/20 text-amber-400';
+                if (d.status === 'Odobreno') statusColor = 'bg-blue-500/20 text-blue-400';
+                if (d.status === 'Plaćeno') statusColor = 'bg-emerald-500/20 text-emerald-400';
+
+                return `
+                    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start gap-2">
+                                <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full font-medium">${d.category}</span>
+                                <span class="text-xs px-2.5 py-1 rounded-full font-medium ${statusColor}">${d.status}</span>
+                            </div>
+                            <h3 class="text-lg font-semibold mt-3 text-slate-100">${d.title}</h3>
+                            <p class="text-xs text-slate-400 mt-1">Fajl: ${d.file_name} • ${d.timestamp}</p>
                         </div>
-                        <h3 class="text-lg font-semibold mt-3 text-slate-100">${d.title}</h3>
-                        <p class="text-xs text-slate-400 mt-1">Fajl: ${d.file_name} • Postavio: ${d.uploader}</p>
+                        <div class="mt-4 pt-3 border-t border-slate-700/50 flex items-center justify-between gap-2">
+                            <select onchange="updateStatus(${d.id}, this.value)" class="bg-slate-900 text-xs text-slate-300 border border-slate-700 rounded px-2 py-1 outline-none">
+                                <option value="Na čekanju" ${d.status === 'Na čekanju' ? 'selected' : ''}>Na čekanju</option>
+                                <option value="Odobreno" ${d.status === 'Odobreno' ? 'selected' : ''}>Odobreno</option>
+                                <option value="Plaćeno" ${d.status === 'Plaćeno' ? 'selected' : ''}>Plaćeno</option>
+                            </select>
+                            <div class="flex gap-2">
+                                <a href="${d.file_data}" download="${d.file_name}" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded-lg text-xs font-medium transition">Preuzmi</a>
+                                <a href="${d.file_data}" target="_blank" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-lg text-xs font-medium transition">Otvori</a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mt-6 flex gap-2">
-                        <a href="${d.file_data}" download="${d.file_name}" class="flex-1 text-center bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-sm font-medium transition">Preuzmi</a>
-                        <a href="${d.file_data}" target="_blank" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm font-medium transition">Pogledaj</a>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        function selectFolder(folder) {
-            currentFolder = folder;
-            renderFoldersAndDocs();
+        function updateStatus(id, newStatus) {
+            const doc = allDocuments.find(d => d.id === id);
+            if (doc) {
+                doc.status = newStatus;
+                filterDocuments();
+            }
         }
 
+        function selectFolder(folder) { currentFolder = folder; renderFoldersAndDocs(); }
         function openFolderModal() { document.getElementById('folder-modal').classList.remove('hidden'); }
         function closeFolderModal() { document.getElementById('folder-modal').classList.add('hidden'); }
-
         function createNewFolder(e) {
             e.preventDefault();
             const name = document.getElementById('new-folder-name').value.trim();
@@ -284,32 +297,22 @@
             const category = document.getElementById('doc-category').value;
             const fileInput = document.getElementById('doc-file');
             const file = fileInput.files[0];
-
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = async function(event) {
-                try {
-                    const res = await fetch(`${BACKEND_URL}/api/documents`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            title,
-                            category,
-                            fileData: event.target.result,
-                            fileName: file.name,
-                            userId: currentUserId
-                        })
-                    });
-
-                    if (res.ok) {
-                        closeUploadModal();
-                        document.getElementById('doc-title').value = '';
-                        fileInput.value = '';
-                        await fetchDocuments();
-                        alert("Stavka uspešno sačuvana u folder!");
-                    }
-                } catch (err) { alert("Greška pri uploudu fajla."); }
+                const res = await fetch(`${BACKEND_URL}/api/documents`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, category, fileData: event.target.result, fileName: file.name, userId: currentUserId })
+                });
+                if (res.ok) {
+                    closeUploadModal();
+                    document.getElementById('doc-title').value = '';
+                    fileInput.value = '';
+                    await fetchDocuments();
+                    alert("Uspešno sačuvano!");
+                }
             };
             reader.readAsDataURL(file);
         }

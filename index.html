@@ -132,15 +132,15 @@
             </div>
         </div>
 
-        <!-- 3. MODUL: ZNR, LEKARSKI PREGLEDI I SERTIFIKATI -->
+        <!-- 3. MODUL: ZNR, LEKARSKI PREGLEDI I SERTIFIKATI (SA SKENOM) -->
         <div id="view-safety" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden space-y-6 role-admin-view">
             <div class="flex justify-between items-center flex-wrap gap-4">
-                <div><h2 class="text-2xl font-black text-slate-100">Zaštita na Radu (ZNR) & Sertifikati</h2><p class="text-xs text-slate-400 mt-1">Praćenje važnosti lekarskih pregleda i licenci za radnike.</p></div>
+                <div><h2 class="text-2xl font-black text-slate-100">Zaštita na Radu (ZNR) & Sertifikati</h2><p class="text-xs text-slate-400 mt-1">Praćenje važnosti lekarskih pregleda, licenci i prilaganje skeniranih dokumenata.</p></div>
                 <button onclick="openSafetyModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2.5 rounded-xl text-xs font-bold transition">+ Dodaj zapis za radnika</button>
             </div>
             <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto shadow-xl">
                 <table class="w-full text-left border-collapse min-w-[700px]">
-                    <thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Ime i prezime radnika</th><th class="p-4">Vrsta pregleda / Sertifikata</th><th class="p-4">Datum isteka</th><th class="p-4 text-center">Status alarma</th></tr></thead>
+                    <thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Ime i prezime radnika</th><th class="p-4">Vrsta pregleda / Sertifikata</th><th class="p-4">Datum isteka</th><th class="p-4 text-center">Skenirani dokument</th><th class="p-4 text-center">Status alarma</th></tr></thead>
                     <tbody id="safety-table-body" class="divide-y divide-slate-800 text-xs"></tbody>
                 </table>
             </div>
@@ -278,7 +278,32 @@
     
     <div id="tool-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Zaduženje alata</h3><form onsubmit="addToolAssignment(event)" class="space-y-3"><input type="text" id="tool-name" placeholder="Naziv alata i serijski broj" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="tool-worker" placeholder="Ime majstora" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('tool-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Zaduži</button></div></form></div></div>
 
-    <div id="safety-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">ZNR & Lekarski pregled</h3><form onsubmit="addSafetyRecord(event)" class="space-y-3"><input type="text" id="safety-worker" placeholder="Ime radnika" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><select id="safety-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><option value="Lekarski pregled">Lekarski pregled</option><option value="Kurs ZNR">Kurs zaštite na radu</option><option value="Licenca za mašinu">Licenca za bager / mašinu</option></select><input type="date" id="safety-expiry" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('safety-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
+    <!-- ZNR MODAL SA UČITAVANJEM SKENIRANOG DOKUMENTA -->
+    <div id="safety-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full">
+            <h3 class="text-lg font-black mb-4">ZNR & Lekarski pregled</h3>
+            <form onsubmit="addSafetyRecord(event)" class="space-y-3">
+                <input type="text" id="safety-worker" placeholder="Ime radnika" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none">
+                <select id="safety-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none">
+                    <option value="Lekarski pregled">Lekarski pregled</option>
+                    <option value="Kurs ZNR">Kurs zaštite na radu</option>
+                    <option value="Licenca za mašinu">Licenca za bager / mašinu</option>
+                </select>
+                <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">Datum isteka</label>
+                    <input type="date" id="safety-expiry" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">Skenirani dokument (PDF / Slika)</label>
+                    <input type="file" id="safety-file" accept="image/*,application/pdf" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-blue-600 file:text-white file:font-semibold">
+                </div>
+                <div class="flex justify-end gap-2.5 mt-6">
+                    <button type="button" onclick="closeModal('safety-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- OSTALI STANDARDNI MODALI -->
     <div id="client-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50">
@@ -316,33 +341,16 @@
         let allUsers = [];
         let allDocuments = [];
         let contractsList = [];
-        let vehiclesList = [
-            { id: 1, plate: "SM-123-AA", model: "Bager JCB 3CX", reg_expiry: "2026-06-15", service_km: 14200 },
-            { id: 2, plate: "SM-456-BB", model: "Kamion Kiper", reg_expiry: "2026-11-20", service_km: 88500 }
-        ];
+        let vehiclesList = [];
         
-        // Podaci za nove module
-        let sitesList = [
-            { id: 1, name: "Stambeni objekat Park", location: "Smederevo, Centar", budget: 4500000, spent: 1200000 },
-            { id: 2, name: "hala Industrijska zona", location: "Kolari", budget: 9800000, spent: 3400000 }
-        ];
-        let toolsList = [
-            { id: 1, name: "Hilti bušilica TE-60 (#402)", worker: "Marko Marković", date: "2026-03-01", status: "Zaduženo" },
-            { id: 2, name: "Vibraciona igla za beton (#12)", worker: "Jovan Jovanović", date: "2026-02-15", status: "Zaduženo" }
-        ];
-        let safetyList = [
-            { id: 1, worker: "Marko Marković", type: "Lekarski pregled", expiry: "2026-08-10" },
-            { id: 2, worker: "Jovan Jovanović", type: "Licenca za bager", expiry: "2026-05-20" },
-            { id: 3, worker: "Stefan Stefanović", type: "Kurs ZNR", expiry: "2026-12-01" }
-        ];
+        let sitesList = [];
+        let toolsList = [];
+        let safetyList = [];
 
         let allTasks = [];
         let hrLogs = [];
         let inventoryItems = [];
-        let clientsList = [
-            { name: "Građevinar d.o.o.", pib: "101234567", address: "Bulevar Oslobođenja 45, Beograd", contact: "011/234-567" },
-            { name: "Euro Trans d.o.o.", pib: "109876543", address: "Kralja Petra I 12, Smederevo", contact: "026/456-789" }
-        ];
+        let clientsList = [];
         let travelLogs = [];
         let workLogs = [];
         let currentFolder = 'Sve';
@@ -491,7 +499,6 @@
             alert(`Uspešno kreiran nalog za radnika: ${name}!`);
         }
 
-        // NOVE FUNKCIJE ZA NOVE MODULE
         function openSiteModal() { document.getElementById('site-modal').classList.remove('hidden'); }
         function addSite(e) {
             e.preventDefault();
@@ -507,7 +514,7 @@
             alert("Gradilište uspešno kreirano!");
         }
         function renderSites() {
-            document.getElementById('sites-grid').innerHTML = sitesList.map(s => {
+            document.getElementById('sites-grid').innerHTML = sitesList.length === 0 ? `<p class="text-slate-400 col-span-full">Nema unetih gradilišta.</p>` : sitesList.map(s => {
                 const percent = s.budget > 0 ? Math.round((s.spent / s.budget) * 100) : 0;
                 return `
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-3">
@@ -562,34 +569,60 @@
         function openSafetyModal() { document.getElementById('safety-modal').classList.remove('hidden'); }
         function addSafetyRecord(e) {
             e.preventDefault();
-            safetyList.push({
-                id: safetyList.length + 1,
-                worker: document.getElementById('safety-worker').value,
-                type: document.getElementById('safety-type').value,
-                expiry: document.getElementById('safety-expiry').value
-            });
-            closeModal('safety-modal');
-            renderSafety();
-            alert("Zapis uspešno sačuvan!");
+            const fileInput = document.getElementById('safety-file');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    safetyList.push({
+                        id: safetyList.length + 1,
+                        worker: document.getElementById('safety-worker').value,
+                        type: document.getElementById('safety-type').value,
+                        expiry: document.getElementById('safety-expiry').value,
+                        fileData: event.target.result,
+                        fileName: file.name
+                    });
+                    closeModal('safety-modal');
+                    document.querySelector('#safety-modal form').reset();
+                    renderSafety();
+                    alert("Zapis i skenirani dokument sačuvani!");
+                };
+                reader.readAsDataURL(file);
+            } else {
+                safetyList.push({
+                    id: safetyList.length + 1,
+                    worker: document.getElementById('safety-worker').value,
+                    type: document.getElementById('safety-type').value,
+                    expiry: document.getElementById('safety-expiry').value,
+                    fileData: null,
+                    fileName: null
+                });
+                closeModal('safety-modal');
+                document.querySelector('#safety-modal form').reset();
+                renderSafety();
+                alert("Zapis sačuvan (bez fajla)!");
+            }
         }
+
         function renderSafety() {
             const today = new Date();
-            document.getElementById('safety-table-body').innerHTML = safetyList.map(s => {
+            document.getElementById('safety-table-body').innerHTML = safetyList.length === 0 ? `<tr><td colspan="5" class="p-4 text-slate-400">Nema unetih zapisa za zaštitu na radu.</td></tr>` : safetyList.map(s => {
                 const expDate = new Date(s.expiry);
                 const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
                 const badge = diffDays < 30 ? `<span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2.5 py-1 rounded-lg text-[10px] font-bold">⚠️ Ističe za ${diffDays} dana!</span>` : `<span class="bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">✅ Važeće</span>`;
+                const fileCell = s.fileData ? `<a href="${s.fileData}" download="${s.fileName}" class="text-blue-400 hover:underline font-bold">📥 Preuzmi sken</a>` : `<span class="text-slate-500">Nema fajla</span>`;
                 return `
                     <tr class="hover:bg-slate-800/40 transition">
                         <td class="p-4 font-bold text-slate-200">${s.worker}</td>
                         <td class="p-4 text-blue-400 font-medium">${s.type}</td>
                         <td class="p-4 text-slate-300">${s.expiry}</td>
+                        <td class="p-4 text-center">${fileCell}</td>
                         <td class="p-4 text-center">${badge}</td>
                     </tr>
                 `;
             }).join('');
         }
 
-        // KNJIGOVODSTVO: SEF XML, e-Banking nalozi
         function generateSefXml() {
             const invoices = allDocuments.filter(d => d.type === 'Prihod');
             let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<InvoiceCollection xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">\n`;
@@ -626,7 +659,7 @@
 
         function renderVehicles() {
             const today = new Date();
-            document.getElementById('fleet-table-body').innerHTML = vehiclesList.map(v => {
+            document.getElementById('fleet-table-body').innerHTML = vehiclesList.length === 0 ? `<tr><td colspan="5" class="p-4 text-slate-400">Nema unetih vozila u voznom parku.</td></tr>` : vehiclesList.map(v => {
                 const regDate = new Date(v.reg_expiry);
                 const diffDays = Math.ceil((regDate - today) / (1000 * 60 * 60 * 24));
                 const statusBadge = diffDays < 30 ? `<span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2.5 py-1 rounded-lg text-[10px] font-bold">⚠️ Ističe za ${diffDays} dana!</span>` : `<span class="bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">✅ Registrovan</span>`;
@@ -785,7 +818,7 @@
             closeModal('client-modal'); renderClients(); alert("Klijent sačuvan!");
         }
         function renderClients() {
-            document.getElementById('clients-grid').innerHTML = clientsList.map(c => `
+            document.getElementById('clients-grid').innerHTML = clientsList.length === 0 ? `<p class="text-slate-400 col-span-full">Nema unetih klijenata.</p>` : clientsList.map(c => `
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-2">
                     <h3 class="text-base font-black text-blue-400">${c.name}</h3>
                     <p class="text-xs text-slate-400">PIB: ${c.pib}</p>

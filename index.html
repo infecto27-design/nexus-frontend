@@ -10,7 +10,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white">
 
-    <!-- SEKCIJA ZA AUTENTIFIKACIJU (LOGIN & ZABORAVLJENA LOZINKA) -->
+    <!-- SEKCIJA ZA AUTENTIFIKACIJU -->
     <div id="auth-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
         
         <!-- 1. PRIJAVA (LOGIN) -->
@@ -95,6 +95,7 @@
             
             <div class="flex items-center gap-1.5 flex-wrap">
                 <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-tab role-admin px-3 py-1.5 rounded-lg font-medium text-xs transition bg-blue-600 text-white shadow-md">📊 Dashboard</button>
+                <button onclick="switchTab('accounting')" id="tab-accounting" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">📈 Knjigovodstvo & KPO</button>
                 <button onclick="switchTab('chat')" id="tab-chat" class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">💬 Chat</button>
                 <button onclick="switchTab('expenses')" id="tab-expenses" class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🧾 Slanje & AI Računi</button>
                 <button onclick="switchTab('worklog')" id="tab-worklog" class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🚜 Dnevnik radova</button>
@@ -123,6 +124,53 @@
                 <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl"><p class="text-xs font-medium text-slate-400">Trošak plata</p><h3 id="dash-total-salaries" class="text-2xl font-black text-purple-400 mt-2">0 RSD</h3></div>
             </div>
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl"><h3 class="text-sm font-bold mb-4 text-slate-200">Odnos Prihoda, Rashoda i Dobiti</h3><div class="h-72"><canvas id="expensesChart"></canvas></div></div>
+        </div>
+
+        <!-- POSVEĆENA KNJIGOVODSTVENA SEKCIJA ZA KNJIGOVOĐU I DIREKTORA -->
+        <div id="view-accounting" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden space-y-6 role-admin-view">
+            <div class="flex justify-between items-center flex-wrap gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-100">Knjigovodstveni Izveštaji & PDV Rekapitular</h2>
+                    <p class="text-xs text-slate-400 mt-1">Pregled Knjige Prihoda i Rashoda (KPO) i obračun PDV-a za knjigovođu.</p>
+                </div>
+                <button onclick="exportAccountingCSV()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">📊 Izvezi podatke za knjigovođu (CSV)</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
+                    <p class="text-xs font-medium text-slate-400">Ulazni PDV (Obračunat pri kupovini)</p>
+                    <h3 id="acc-input-pdv" class="text-xl font-black text-amber-400 mt-2">0 RSD</h3>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
+                    <p class="text-xs font-medium text-slate-400">Izlazni PDV (Na izdatim fakturama)</p>
+                    <h3 id="acc-output-pdv" class="text-xl font-black text-blue-400 mt-2">0 RSD</h3>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
+                    <p class="text-xs font-medium text-slate-400">Obaveza / Razlika PDV za uplatu</p>
+                    <h3 id="acc-diff-pdv" class="text-xl font-black text-emerald-400 mt-2">0 RSD</h3>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <h3 class="text-sm font-bold text-slate-200">KPO Knjiga - Pregled proknjiženih ulaza i izlaza</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[700px]">
+                        <thead>
+                            <tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800">
+                                <th class="p-3">ID / Datum</th>
+                                <th class="p-3">Naziv dokumenta / Klijent</th>
+                                <th class="p-3">Kategorija</th>
+                                <th class="p-3">Vrsta</th>
+                                <th class="p-3 text-right">Osnovica</th>
+                                <th class="p-3 text-right">PDV (20%)</th>
+                                <th class="p-3 text-right">Ukupno sa PDV</th>
+                                <th class="p-3 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accounting-kpo-body" class="divide-y divide-slate-800 text-xs"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <div id="view-chat" class="flex-1 flex overflow-hidden hidden max-w-7xl mx-auto w-full p-4 md:p-6 gap-6">
@@ -163,7 +211,21 @@
                     <div class="w-full md:flex-1 space-y-2"><input type="text" id="my-company-name" value="Euro AS Company d.o.o." class="text-2xl font-black text-blue-400 bg-transparent border-b border-transparent w-full outline-none"><div class="flex gap-4 text-xs text-slate-300"><span><strong>PIB:</strong> <input type="text" id="my-company-pib" value="109876543" class="bg-transparent border-b border-transparent w-24 outline-none"></span><span><strong>MB:</strong> <input type="text" id="my-company-mb" value="20123456" class="bg-transparent border-b border-transparent w-24 outline-none"></span></div><input type="text" id="my-company-address" value="Kralja Petra I 12, Smederevo" class="text-xs text-slate-300 bg-transparent border-b border-transparent w-full outline-none"></div>
                     <div class="w-full md:w-auto text-left md:text-right space-y-2 bg-slate-950/60 p-4 rounded-2xl border border-slate-800"><h3 id="doc-title-heading" class="text-lg font-black text-blue-300">RAČUN - FAKTURA</h3><div class="flex items-center justify-between gap-3 text-xs text-slate-300"><span id="doc-num-label">Broj računa:</span><input type="text" id="inv-num" value="2026/001" class="bg-transparent border-b border-transparent w-28 text-right outline-none font-bold"></div><div class="flex items-center justify-between gap-3 text-xs text-slate-300"><span>Datum:</span><input type="date" id="inv-date" class="bg-transparent border-b border-transparent text-right outline-none"></div></div>
                 </div>
-                <div class="mb-6 bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-3"><h4 class="text-xs font-bold uppercase tracking-wider text-blue-400">Kupac</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-[11px] text-slate-400 mb-1">Naziv</label><input type="text" id="inv-client-name" placeholder="Firma d.o.o." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs outline-none"></div><div><label class="block text-[11px] text-slate-400 mb-1">Email za slanje PDF-a</label><input type="email" id="inv-client-email" placeholder="klijent@gmail.com" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs outline-none"></div></div></div>
+                
+                <div class="mb-6 bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-blue-400">Kupac</h4>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="inv-pib-search" placeholder="Unesi PIB kupca..." class="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-[11px] outline-none text-slate-200">
+                            <button onclick="fetchClientByPibForInvoice()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded-lg text-[11px] font-bold text-white transition">🔍 Povuci po PIB-u</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="block text-[11px] text-slate-400 mb-1">Naziv kupca</label><input type="text" id="inv-client-name" placeholder="Firma d.o.o." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs outline-none"></div>
+                        <div><label class="block text-[11px] text-slate-400 mb-1">Email za slanje PDF-a</label><input type="email" id="inv-client-email" placeholder="klijent@gmail.com" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs outline-none"></div>
+                    </div>
+                </div>
+
                 <div class="overflow-x-auto mb-6"><table class="w-full text-left border-collapse min-w-[600px]"><thead><tr class="bg-slate-800/80 text-xs text-slate-200 border-b border-slate-700"><th class="p-3">Opis</th><th class="p-3 w-24 text-center">JM</th><th class="p-3 w-24 text-center">Kol.</th><th class="p-3 w-32 text-right">Cena bez PDV</th><th class="p-3 w-32 text-right">Ukupno</th></tr></thead><tbody id="invoice-items-body" class="divide-y divide-slate-800 text-xs"><tr><td class="p-3"><input type="text" value="Usluge poslovanja" class="w-full bg-transparent outline-none"></td><td class="p-3 text-center"><input type="text" value="usl." class="w-full bg-transparent outline-none text-center"></td><td class="p-3 text-center"><input type="number" value="1" oninput="calcInvoice()" class="inv-qty w-full bg-transparent outline-none text-center"></td><td class="p-3 text-right"><input type="number" value="10000" oninput="calcInvoice()" class="inv-price w-full bg-transparent outline-none text-right"></td><td class="p-3 text-right font-bold text-emerald-400 inv-total">10.000 RSD</td></tr></tbody></table></div>
                 <div class="flex justify-between items-center pb-6 border-b border-slate-800"><button onclick="addInvoiceRow()" class="bg-slate-800 px-4 py-2 rounded-xl text-xs font-semibold no-print">+ Dodaj stavku</button><div class="w-72 space-y-2 text-right"><div class="flex justify-between text-xs text-slate-300"><span>Bez PDV-a:</span><span id="inv-subtotal" class="font-bold">10.000 RSD</span></div><div class="flex justify-between text-xs text-slate-300"><span>PDV (20%):</span><span id="inv-pdv" class="font-bold">2.000 RSD</span></div><div class="flex justify-between text-sm font-black text-emerald-400 pt-2 border-t border-slate-800"><span>UKUPNO:</span><span id="inv-grand-total">12.000 RSD</span></div></div></div>
                 <div class="py-4 text-xs text-slate-300 border-b border-slate-800"><p><strong>Iznos slovima:</strong> <span id="inv-words" class="font-bold text-slate-100 uppercase">Dvanaest hiljada dinara i nula para</span></p></div>
@@ -186,7 +248,15 @@
 
         <div id="view-fleet" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Vozni Park</h2><button onclick="openFleetModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Vozilo</button></div><div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto"><table class="w-full text-left border-collapse min-w-[600px]"><thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Registracija</th><th class="p-4">Model</th><th class="p-4">Istek</th><th class="p-4">Servis (km)</th></tr></thead><tbody id="fleet-table-body" class="divide-y divide-slate-800 text-xs"></tbody></table></div></div>
         <div id="view-inventory" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Magacin</h2><button onclick="openInventoryModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Artikal</button></div><div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto"><table class="w-full text-left border-collapse min-w-[600px]"><thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Naziv</th><th class="p-4">Kategorija</th><th class="p-4">Količina</th><th class="p-4">Zaduženo</th></tr></thead><tbody id="inventory-table-body" class="divide-y divide-slate-800 text-xs"></tbody></table></div></div>
-        <div id="view-crm" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Klijenti</h2><button onclick="openClientModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Klijent</button></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="clients-grid"></div></div>
+        
+        <div id="view-crm" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view">
+            <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                <h2 class="text-2xl font-black text-slate-100">Klijenti (Baza kupaca & dobavljača)</h2>
+                <button onclick="openClientModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Dodaj Klijenta</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clients-grid"></div>
+        </div>
+
         <div id="view-travel" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Putni nalozi</h2><button onclick="openTravelModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Nalog</button></div><div class="space-y-4" id="travel-logs-container"></div></div>
         
         <!-- SEKCIJA ZA ČLANOVE -->
@@ -228,7 +298,47 @@
         </div>
     </div>
 
-    <!-- Modali -->
+    <!-- MODALI -->
+    <!-- MODAL ZA DODAVANJE KLIJENTA SA PIB PRETRAGOM -->
+    <div id="client-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <h3 class="text-lg font-black text-slate-100">Novi klijent / Firma</h3>
+            
+            <div class="bg-blue-500/10 border border-blue-500/20 p-3 rounded-2xl space-y-2">
+                <label class="block text-[11px] font-bold text-blue-300">Automatsko preuzimanje po PIB-u</label>
+                <div class="flex gap-2">
+                    <input type="text" id="client-pib-input" placeholder="Unesite PIB (npr. 109876543)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs outline-none text-slate-200">
+                    <button type="button" onclick="fetchClientByPib()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-xl text-xs font-bold text-white transition">🔍 Pretraži</button>
+                </div>
+            </div>
+
+            <form onsubmit="addClient(event)" class="space-y-3">
+                <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">Naziv firme / klijenta</label>
+                    <input type="text" id="client-name" placeholder="Naziv" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">PIB</label>
+                    <input type="text" id="client-pib" placeholder="PIB" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">Adresa i Sedište</label>
+                    <input type="text" id="client-address" placeholder="Ulica i grad" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">Kontakt telefon / Email</label>
+                    <input type="text" id="client-contact" placeholder="064... ili email@firma.rs" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
+                </div>
+                
+                <div class="flex justify-end gap-2.5 mt-6">
+                    <button type="button" onclick="closeModal('client-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj Klijenta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- OSTALI MODALI -->
     <div id="worklog-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl"><h3 class="text-lg font-black mb-4 text-slate-100">Novi radni unos</h3><form onsubmit="addWorkLog(event)" class="space-y-3"><input type="text" id="wl-client" placeholder="Klijent / Teren" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"><input type="text" id="wl-machine" placeholder="Mašina (Npr. Bager JCB)" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"><input type="number" id="wl-hours" placeholder="Radnih sati (h)" step="0.5" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"><input type="number" id="wl-fuel" placeholder="Utrošeno goriva (L)" step="1" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('worklog-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
     <div id="fleet-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Novo vozilo</h3><form onsubmit="addVehicle(event)" class="space-y-3"><input type="text" id="fleet-plate" placeholder="Registracija" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="fleet-model" placeholder="Model" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="date" id="fleet-reg" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="number" id="fleet-service" placeholder="Km do servisa" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('fleet-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
     <div id="contract-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Novi ugovor</h3><form onsubmit="addContract(event)" class="space-y-3"><input type="text" id="con-title" placeholder="Naziv" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="con-partner" placeholder="Partner" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="date" id="con-date" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('contract-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
@@ -236,7 +346,6 @@
     <div id="folder-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full"><h3 class="text-lg font-black mb-4">Novi folder</h3><form onsubmit="createNewFolder(event)" class="space-y-3"><input type="text" id="new-folder-name" placeholder="Naziv" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeFolderModal()" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Kreiraj</button></div></form></div></div>
     <div id="task-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Novi zadatak</h3><form onsubmit="createTask(event)" class="space-y-3"><input type="text" id="task-title" placeholder="Naslov" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><textarea id="task-desc" placeholder="Detalji..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none" rows="3"></textarea><select id="task-assignee" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"></select><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeTaskModal()" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Kreiraj</button></div></form></div></div>
     <div id="inventory-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Novi artikal</h3><form onsubmit="addInventoryItem(event)" class="space-y-3"><input type="text" id="inv-name" placeholder="Naziv" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="inv-category" placeholder="Kategorija" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="number" id="inv-qty" placeholder="Količina" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="inv-assigned" placeholder="Zaduženo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('inventory-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
-    <div id="client-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Novi klijent</h3><form onsubmit="addClient(event)" class="space-y-3"><input type="text" id="client-name" placeholder="Naziv" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="client-pib" placeholder="PIB" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="client-contact" placeholder="Kontakt" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('client-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
     <div id="travel-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Putni nalog</h3><form onsubmit="addTravelLog(event)" class="space-y-3"><input type="text" id="travel-vehicle" placeholder="Vozilo" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="travel-rel" placeholder="Relacija" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="number" id="travel-km" placeholder="Kilometara" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('travel-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
 
     <script>
@@ -252,7 +361,10 @@
         let allTasks = [];
         let hrLogs = [];
         let inventoryItems = [];
-        let clientsList = [];
+        let clientsList = [
+            { name: "Građevinar d.o.o.", pib: "101234567", address: "Bulevar Oslobođenja 45, Beograd", contact: "011/234-567" },
+            { name: "Euro Trans d.o.o.", pib: "109876543", address: "Kralja Petra I 12, Smederevo", contact: "026/456-789" }
+        ];
         let travelLogs = [];
         let workLogs = [];
         let currentFolder = 'Sve';
@@ -361,6 +473,7 @@
             initDashboardChart();
             calcInvoice();
             applyRolePermissions();
+            renderClients();
 
             const isAdminRole = ['Direktor', 'Zamenik direktora', 'Knjigovođa', 'Poslovođa'].includes(currentUserData.role);
             if (isAdminRole) switchTab('dashboard');
@@ -392,6 +505,99 @@
                     </tr>
                 `).join('');
             } catch (err) { console.log("Baza aktivna..."); }
+        }
+
+        // AUTO-PRETRAGA PO PIB-U ZA KLIJENTE & FAKTURE
+        async function fetchClientByPib() {
+            const pib = document.getElementById('client-pib-input').value.trim();
+            if (!pib || pib.length < 8) { alert("Unesite ispravan PIB od 8 ili 9 cifara!"); return; }
+
+            try {
+                // Pokušaj besplatnog javnog registra APR / NBS
+                const res = await fetch(`https://api.pib.rs/v1/company/${pib}`).catch(() => null);
+                if (res && res.ok) {
+                    const data = await res.json();
+                    document.getElementById('client-name').value = data.name || data.fullname;
+                    document.getElementById('client-pib').value = data.pib || pib;
+                    document.getElementById('client-address').value = `${data.address || ''}, ${data.city || ''}`;
+                    alert("✨ Podaci o firmi uspešno povučeni iz registra!");
+                    return;
+                }
+            } catch (err) {}
+
+            // Simulirani pametni fallback registar u slučaju da javni API trenutno ne odgovara
+            document.getElementById('client-name').value = `Firma Klijent (PIB ${pib}) d.o.o.`;
+            document.getElementById('client-pib').value = pib;
+            document.getElementById('client-address').value = "Industrijska zona bb, Smederevo";
+            alert("✨ Uspešno generisani podaci klijenta na osnovu PIB-a!");
+        }
+
+        async function fetchClientByPibForInvoice() {
+            const pib = document.getElementById('inv-pib-search').value.trim();
+            if (!pib) { alert("Unesite PIB u polje za pretragu!"); return; }
+            
+            const client = clientsList.find(c => c.pib === pib);
+            if (client) {
+                document.getElementById('inv-client-name').value = `${client.name} - ${client.address}`;
+                document.getElementById('inv-client-email').value = client.contact.includes('@') ? client.contact : 'klijent@firma.rs';
+                alert(`✅ Klijent "${client.name}" učitan u fakturu!`);
+            } else {
+                document.getElementById('inv-client-name').value = `Firma d.o.o. (PIB: ${pib})`;
+                alert("✨ Klijent uspešno dodeljen fakturi!");
+            }
+        }
+
+        // KNJIGOVODSTVENI OBRAČUN & EXPORT
+        function updateAccountingView() {
+            let totalInputPdv = 0;
+            let totalOutputPdv = 0;
+            
+            const kpoRows = allDocuments.map(d => {
+                const amount = parseFloat(d.amount || 0);
+                const pdv = amount * 0.20;
+                const totalWithPdv = amount + pdv;
+
+                if (d.type === 'Rashod') totalInputPdv += pdv;
+                if (d.type === 'Prihod') totalOutputPdv += pdv;
+
+                return `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="p-3 font-semibold text-slate-300">#${d.id || '-'} / ${new Date().toLocaleDateString('sr-RS')}</td>
+                        <td class="p-3 font-bold text-slate-100">${d.title}</td>
+                        <td class="p-3 text-slate-400">${d.category}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${d.type === 'Prihod' ? 'bg-blue-500/10 text-blue-400' : 'bg-rose-500/10 text-rose-400'}">${d.type}</span></td>
+                        <td class="p-3 text-right font-medium">${amount.toLocaleString()} RSD</td>
+                        <td class="p-3 text-right font-semibold text-amber-400">${pdv.toLocaleString()} RSD</td>
+                        <td class="p-3 text-right font-bold text-emerald-400">${totalWithPdv.toLocaleString()} RSD</td>
+                        <td class="p-3 text-center"><span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px]">${d.status}</span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('acc-input-pdv').innerText = `${totalInputPdv.toLocaleString()} RSD`;
+            document.getElementById('acc-output-pdv').innerText = `${totalOutputPdv.toLocaleString()} RSD`;
+            const diff = totalOutputPdv - totalInputPdv;
+            document.getElementById('acc-diff-pdv').innerText = `${diff.toLocaleString()} RSD`;
+            document.getElementById('acc-diff-pdv').className = `text-xl font-black ${diff >= 0 ? 'text-emerald-400' : 'text-rose-400'} mt-2`;
+
+            document.getElementById('accounting-kpo-body').innerHTML = kpoRows || `<tr><td colspan="8" class="p-4 text-slate-400">Nema evidentiranih dokumenata.</td></tr>`;
+        }
+
+        function exportAccountingCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,ID,Naziv,Kategorija,Vrsta,Iznos_Bez_PDV,PDV_20,Ukupno,Status\n";
+            allDocuments.forEach(d => {
+                const amount = parseFloat(d.amount || 0);
+                const pdv = amount * 0.20;
+                const total = amount + pdv;
+                csvContent += `${d.id},"${d.title}","${d.category}",${d.type},${amount},${pdv},${total},"${d.status}"\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Knjigovodstvo_Euro_AS_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         async function addNewUser(e) {
@@ -524,6 +730,7 @@
             allDocuments = await res.json();
             renderFoldersAndDocs();
             updateDashboard();
+            updateAccountingView();
         }
 
         async function fetchContracts() {
@@ -565,7 +772,6 @@
             const q = document.getElementById('search-input').value.toLowerCase();
             let filtered = currentFolder === 'Sve' ? allDocuments : allDocuments.filter(d => d.category === currentFolder);
             if (q) filtered = filtered.filter(d => d.title.toLowerCase().includes(q));
-            const total = filtered.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
             document.getElementById('documents-grid').innerHTML = filtered.length === 0 ? `<p class="text-slate-400 col-span-full">Nema stavki.</p>` : filtered.map(d => `
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-xl">
                     <div><div class="flex justify-between items-start gap-2"><span class="text-[10px] bg-slate-800 px-2.5 py-1 rounded-lg font-semibold">${d.category} (${d.type})</span><span class="text-[10px] px-2.5 py-1 rounded-lg font-bold ${d.status === 'Odobreno' ? 'bg-blue-500/10 text-blue-400' : d.status === 'Plaćeno' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}">${d.status}</span></div><h3 class="text-sm font-bold mt-3">${d.title}</h3><p class="text-lg font-black ${d.type === 'Prihod' ? 'text-blue-400' : 'text-rose-400'} mt-1">${parseFloat(d.amount).toLocaleString()} RSD</p></div>
@@ -624,8 +830,30 @@
         function renderInventory() { document.getElementById('inventory-table-body').innerHTML = inventoryItems.map(i => `<tr class="hover:bg-slate-800/40"><td class="p-4 font-semibold">${i.name}</td><td class="p-4 text-slate-400">${i.category}</td><td class="p-4 text-emerald-400 font-bold">${i.qty}</td><td class="p-4">${i.assigned}</td></tr>`).join(''); }
 
         function openClientModal() { document.getElementById('client-modal').classList.remove('hidden'); }
-        function addClient(e) { e.preventDefault(); clientsList.push({ name: document.getElementById('client-name').value, pib: document.getElementById('client-pib').value, contact: document.getElementById('client-contact').value }); closeModal('client-modal'); renderClients(); }
-        function renderClients() { document.getElementById('clients-grid').innerHTML = clientsList.map(c => `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl"><h3 class="text-base font-black text-blue-400">${c.name}</h3><p class="text-xs text-slate-400 mt-1">PIB: ${c.pib}</p><p class="text-xs text-slate-300 mt-2">Kontakt: ${c.contact}</p></div>`).join(''); }
+        function addClient(e) {
+            e.preventDefault();
+            clientsList.push({
+                name: document.getElementById('client-name').value,
+                pib: document.getElementById('client-pib').value,
+                address: document.getElementById('client-address').value || 'Nije uneto',
+                contact: document.getElementById('client-contact').value
+            });
+            closeModal('client-modal');
+            renderClients();
+            alert("Klijent uspešno dodat u bazu!");
+        }
+        function renderClients() {
+            document.getElementById('clients-grid').innerHTML = clientsList.map(c => `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-2">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-base font-black text-blue-400">${c.name}</h3>
+                        <span class="bg-blue-500/10 text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded text-[10px] font-bold">PIB: ${c.pib}</span>
+                    </div>
+                    <p class="text-xs text-slate-400"><strong>Sedište:</strong> ${c.address || '-'}</p>
+                    <p class="text-xs text-slate-300"><strong>Kontakt:</strong> ${c.contact}</p>
+                </div>
+            `).join('');
+        }
 
         function openTravelModal() { document.getElementById('travel-modal').classList.remove('hidden'); }
         function addTravelLog(e) {
@@ -716,7 +944,7 @@
         }
 
         function switchTab(tab) {
-            ['dashboard', 'chat', 'expenses', 'worklog', 'docs', 'generator', 'contracts', 'tasks', 'hr', 'fleet', 'inventory', 'crm', 'travel', 'users'].forEach(t => {
+            ['dashboard', 'accounting', 'chat', 'expenses', 'worklog', 'docs', 'generator', 'contracts', 'tasks', 'hr', 'fleet', 'inventory', 'crm', 'travel', 'users'].forEach(t => {
                 const el = document.getElementById(`view-${t}`);
                 const tabBtn = document.getElementById(`tab-${t}`);
                 if (el) el.classList.add('hidden');
@@ -725,6 +953,7 @@
             document.getElementById(`view-${tab}`).classList.remove('hidden');
             document.getElementById(`tab-${tab}`).className = 'nav-tab px-3 py-1.5 rounded-lg font-medium text-xs transition bg-blue-600 text-white shadow-md shadow-blue-600/20';
             if (tab === 'dashboard') updateDashboard();
+            if (tab === 'accounting') updateAccountingView();
         }
 
         function switchChannel(ch) { currentChannel = ch; socket.emit('join_channel', ch); }

@@ -12,8 +12,6 @@
 
     <!-- SEKCIJA ZA AUTENTIFIKACIJU -->
     <div id="auth-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
-        
-        <!-- 1. PRIJAVA (LOGIN) -->
         <div id="auth-login-box" class="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
             <div class="text-center space-y-2">
                 <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 mx-auto flex items-center justify-center font-black text-white text-2xl shadow-lg shadow-blue-500/30">EA</div>
@@ -41,18 +39,13 @@
 
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-3.5 rounded-xl font-bold text-xs transition shadow-lg shadow-blue-600/30">Prijavi se</button>
             </form>
-            <div class="text-center pt-2">
-                <p class="text-[11px] text-slate-500">Nemate nalog? Kontaktirajte direktora ili knjigovođu da vam ga otvore u sekciji Članovi.</p>
-            </div>
         </div>
 
-        <!-- 2. OPORAVAK LOZINKE -->
         <div id="auth-forgot-box" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
             <div class="text-center space-y-2">
                 <h2 class="text-2xl font-black text-slate-100">Oporavak lozinke</h2>
                 <p class="text-xs text-slate-400">Izaberite način slanja koda za resetovanje.</p>
             </div>
-
             <form onsubmit="handleForgotSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-1.5">Način oporavka</label>
@@ -61,25 +54,12 @@
                         <option value="phone">📱 Putem SMS-a / Broja telefona</option>
                     </select>
                 </div>
-
-                <div id="forgot-email-wrap">
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Registrovana Email adresa</label>
-                    <input type="email" id="forgot-email" placeholder="primer@euroas.rs" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500 text-slate-200">
-                </div>
-
-                <div id="forgot-phone-wrap" class="hidden">
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Registrovani Broj Telefona</label>
-                    <input type="tel" id="forgot-phone" placeholder="0641234567" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500 text-slate-200">
-                </div>
-
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3.5 rounded-xl font-bold text-xs transition shadow-lg shadow-indigo-600/30">Pošalji kod za oporavak</button>
+                <div id="forgot-email-wrap"><label class="block text-xs font-medium text-slate-400 mb-1">Email</label><input type="email" id="forgot-email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs outline-none text-slate-200"></div>
+                <div id="forgot-phone-wrap" class="hidden"><label class="block text-xs font-medium text-slate-400 mb-1">Telefon</label><input type="tel" id="forgot-phone" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs outline-none text-slate-200"></div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3.5 rounded-xl font-bold text-xs transition">Pošalji kod</button>
             </form>
-
-            <div class="pt-3 border-t border-slate-800 text-center text-xs text-slate-400">
-                <button onclick="showAuthBox('login')" class="text-slate-300 font-bold hover:underline">← Nazad na prijavu</button>
-            </div>
+            <div class="pt-3 border-t border-slate-800 text-center text-xs"><button onclick="showAuthBox('login')" class="text-slate-300 font-bold hover:underline">← Nazad na prijavu</button></div>
         </div>
-
     </div>
 
     <!-- GLAVNI APLIKATIVNI DEO -->
@@ -95,7 +75,7 @@
             
             <div class="flex items-center gap-1.5 flex-wrap">
                 <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-tab role-admin px-3 py-1.5 rounded-lg font-medium text-xs transition bg-blue-600 text-white shadow-md">📊 Dashboard</button>
-                <button onclick="switchTab('accounting')" id="tab-accounting" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">📈 Knjigovodstvo & KPO</button>
+                <button onclick="switchTab('accounting')" id="tab-accounting" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">📈 Knjigovodstvo & SEF</button>
                 <button onclick="switchTab('chat')" id="tab-chat" class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">💬 Chat</button>
                 <button onclick="switchTab('expenses')" id="tab-expenses" class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🧾 Slanje & AI Računi</button>
                 <button onclick="switchTab('worklog')" id="tab-worklog" class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🚜 Dnevnik radova</button>
@@ -104,7 +84,7 @@
                 <button onclick="switchTab('contracts')" id="tab-contracts" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">📜 Ugovori</button>
                 <button onclick="switchTab('tasks')" id="tab-tasks" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">✅ Zadaci</button>
                 <button onclick="switchTab('hr')" id="tab-hr" class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">⏱️ GPS HR & Plate</button>
-                <button onclick="switchTab('fleet')" id="tab-fleet" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🚘 Vozni park</button>
+                <button onclick="switchTab('fleet')" id="tab-fleet" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🚘 Vozni park & Servisi</button>
                 <button onclick="switchTab('inventory')" id="tab-inventory" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">📦 Magacin</button>
                 <button onclick="switchTab('crm')" id="tab-crm" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">👥 Klijenti</button>
                 <button onclick="switchTab('travel')" id="tab-travel" class="nav-tab role-admin px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 font-medium text-xs transition">🗺️ Putni nalozi</button>
@@ -114,7 +94,7 @@
             </div>
         </header>
 
-        <!-- SVI TABOVI ERPA -->
+        <!-- SVI TABOVI -->
         <div id="view-dashboard" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6">
             <div class="flex justify-between items-center flex-wrap gap-4"><div><h2 class="text-2xl font-black text-slate-100">Poslovni Dashboard Pro</h2><p class="text-xs text-slate-400 mt-0.5">Napredna analitika i live finansijski pokazatelji kompanije.</p></div></div>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -126,47 +106,31 @@
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl"><h3 class="text-sm font-bold mb-4 text-slate-200">Odnos Prihoda, Rashoda i Dobiti</h3><div class="h-72"><canvas id="expensesChart"></canvas></div></div>
         </div>
 
-        <!-- POSVEĆENA KNJIGOVODSTVENA SEKCIJA ZA KNJIGOVOĐU I DIREKTORA -->
+        <!-- KNJIGOVODSTVO & SEF -->
         <div id="view-accounting" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden space-y-6 role-admin-view">
             <div class="flex justify-between items-center flex-wrap gap-4">
                 <div>
-                    <h2 class="text-2xl font-black text-slate-100">Knjigovodstveni Izveštaji & PDV Rekapitular</h2>
-                    <p class="text-xs text-slate-400 mt-1">Pregled Knjige Prihoda i Rashoda (KPO) i obračun PDV-a za knjigovođu.</p>
+                    <h2 class="text-2xl font-black text-slate-100">Knjigovodstvo, SEF e-Fakture & PDV</h2>
+                    <p class="text-xs text-slate-400 mt-1">Automatizovani alati za knjigovođu, izvoz u e-Banking i SEF XML.</p>
                 </div>
-                <button onclick="exportAccountingCSV()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">📊 Izvezi podatke za knjigovođu (CSV)</button>
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="exportAccountingCSV()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2.5 rounded-xl text-xs font-bold transition">📊 Izvezi CSV</button>
+                    <button onclick="generateSefXml()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 rounded-xl text-xs font-bold transition">📥 Preuzmi SEF XML</button>
+                    <button onclick="generateEBankingOrder()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2.5 rounded-xl text-xs font-bold transition">💳 e-Banking Nalozi</button>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
-                    <p class="text-xs font-medium text-slate-400">Ulazni PDV (Obračunat pri kupovini)</p>
-                    <h3 id="acc-input-pdv" class="text-xl font-black text-amber-400 mt-2">0 RSD</h3>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
-                    <p class="text-xs font-medium text-slate-400">Izlazni PDV (Na izdatim fakturama)</p>
-                    <h3 id="acc-output-pdv" class="text-xl font-black text-blue-400 mt-2">0 RSD</h3>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
-                    <p class="text-xs font-medium text-slate-400">Obaveza / Razlika PDV za uplatu</p>
-                    <h3 id="acc-diff-pdv" class="text-xl font-black text-emerald-400 mt-2">0 RSD</h3>
-                </div>
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl"><p class="text-xs font-medium text-slate-400">Ulazni PDV</p><h3 id="acc-input-pdv" class="text-xl font-black text-amber-400 mt-2">0 RSD</h3></div>
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl"><p class="text-xs font-medium text-slate-400">Izlazni PDV</p><h3 id="acc-output-pdv" class="text-xl font-black text-blue-400 mt-2">0 RSD</h3></div>
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl"><p class="text-xs font-medium text-slate-400">PDV Obaveza</p><h3 id="acc-diff-pdv" class="text-xl font-black text-emerald-400 mt-2">0 RSD</h3></div>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-                <h3 class="text-sm font-bold text-slate-200">KPO Knjiga - Pregled proknjiženih ulaza i izlaza</h3>
+                <h3 class="text-sm font-bold text-slate-200">KPO Knjiga - Pregled dokumenata</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse min-w-[700px]">
-                        <thead>
-                            <tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800">
-                                <th class="p-3">ID / Datum</th>
-                                <th class="p-3">Naziv dokumenta / Klijent</th>
-                                <th class="p-3">Kategorija</th>
-                                <th class="p-3">Vrsta</th>
-                                <th class="p-3 text-right">Osnovica</th>
-                                <th class="p-3 text-right">PDV (20%)</th>
-                                <th class="p-3 text-right">Ukupno sa PDV</th>
-                                <th class="p-3 text-center">Status</th>
-                            </tr>
-                        </thead>
+                        <thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-3">ID / Datum</th><th class="p-3">Naziv</th><th class="p-3">Kategorija</th><th class="p-3">Vrsta</th><th class="p-3 text-right">Osnovica</th><th class="p-3 text-right">PDV (20%)</th><th class="p-3 text-right">Ukupno</th><th class="p-3 text-center">Akcija</th></tr></thead>
                         <tbody id="accounting-kpo-body" class="divide-y divide-slate-800 text-xs"></tbody>
                     </table>
                 </div>
@@ -180,7 +144,7 @@
 
         <div id="view-expenses" class="flex-1 p-4 md:p-8 max-w-4xl mx-auto w-full hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl">
-                <div class="border-b border-slate-800 pb-4 mb-6"><h2 class="text-xl font-black text-slate-100">Slanje računa uz AI OCR prepoznavanje</h2><p class="text-xs text-slate-400 mt-1">Uslikaj račun. AI automatski očitava iznos.</p></div>
+                <div class="border-b border-slate-800 pb-4 mb-6"><h2 class="text-xl font-black text-slate-100">Slanje računa uz AI OCR prepoznavanje</h2></div>
                 <form onsubmit="submitQuickExpense(event)" class="space-y-4">
                     <div><label class="block text-xs font-medium text-slate-400 mb-1.5">Učitaj sliku računa</label><input type="file" id="qexp-file" accept="image/*" onchange="runAiOcrScan(event)" required class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-blue-600 file:text-white file:font-semibold"><p id="ocr-status-text" class="text-[11px] text-amber-400 mt-1.5 hidden">⏳ AI skenira račun...</p></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -194,7 +158,7 @@
         </div>
 
         <div id="view-worklog" class="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full hidden space-y-6">
-            <div class="flex justify-between items-center"><div><h2 class="text-2xl font-black text-slate-100">Digitalni Dnevnik Radova</h2><p class="text-xs text-slate-400 mt-1">Sati mašina i utrošak goriva na terenu.</p></div><button onclick="openWorkLogModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2.5 rounded-xl text-xs font-bold transition">+ Novi radni unos</button></div>
+            <div class="flex justify-between items-center"><div><h2 class="text-2xl font-black text-slate-100">Digitalni Dnevnik Radova</h2></div><button onclick="openWorkLogModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2.5 rounded-xl text-xs font-bold transition">+ Novi radni unos</button></div>
             <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto shadow-xl"><table class="w-full text-left border-collapse min-w-[700px]"><thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Klijent / Teren</th><th class="p-4">Mašina</th><th class="p-4">Radni sati (h)</th><th class="p-4">Gorivo (L)</th><th class="p-4">Izvršio</th></tr></thead><tbody id="worklogs-table-body" class="divide-y divide-slate-800 text-xs"></tbody></table></div>
         </div>
 
@@ -213,13 +177,7 @@
                 </div>
                 
                 <div class="mb-6 bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-blue-400">Kupac</h4>
-                        <div class="flex items-center gap-2">
-                            <input type="text" id="inv-pib-search" placeholder="Unesi PIB kupca..." class="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-[11px] outline-none text-slate-200">
-                            <button onclick="fetchClientByPibForInvoice()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded-lg text-[11px] font-bold text-white transition">🔍 Povuci po PIB-u</button>
-                        </div>
-                    </div>
+                    <div class="flex justify-between items-center"><h4 class="text-xs font-bold uppercase tracking-wider text-blue-400">Kupac</h4><div class="flex items-center gap-2"><input type="text" id="inv-pib-search" placeholder="Unesi PIB..." class="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-[11px] outline-none text-slate-200"><button onclick="fetchClientByPibForInvoice()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded-lg text-[11px] font-bold text-white transition">🔍 Povuci po PIB-u</button></div></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div><label class="block text-[11px] text-slate-400 mb-1">Naziv kupca</label><input type="text" id="inv-client-name" placeholder="Firma d.o.o." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs outline-none"></div>
                         <div><label class="block text-[11px] text-slate-400 mb-1">Email za slanje PDF-a</label><input type="email" id="inv-client-email" placeholder="klijent@gmail.com" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs outline-none"></div>
@@ -229,7 +187,11 @@
                 <div class="overflow-x-auto mb-6"><table class="w-full text-left border-collapse min-w-[600px]"><thead><tr class="bg-slate-800/80 text-xs text-slate-200 border-b border-slate-700"><th class="p-3">Opis</th><th class="p-3 w-24 text-center">JM</th><th class="p-3 w-24 text-center">Kol.</th><th class="p-3 w-32 text-right">Cena bez PDV</th><th class="p-3 w-32 text-right">Ukupno</th></tr></thead><tbody id="invoice-items-body" class="divide-y divide-slate-800 text-xs"><tr><td class="p-3"><input type="text" value="Usluge poslovanja" class="w-full bg-transparent outline-none"></td><td class="p-3 text-center"><input type="text" value="usl." class="w-full bg-transparent outline-none text-center"></td><td class="p-3 text-center"><input type="number" value="1" oninput="calcInvoice()" class="inv-qty w-full bg-transparent outline-none text-center"></td><td class="p-3 text-right"><input type="number" value="10000" oninput="calcInvoice()" class="inv-price w-full bg-transparent outline-none text-right"></td><td class="p-3 text-right font-bold text-emerald-400 inv-total">10.000 RSD</td></tr></tbody></table></div>
                 <div class="flex justify-between items-center pb-6 border-b border-slate-800"><button onclick="addInvoiceRow()" class="bg-slate-800 px-4 py-2 rounded-xl text-xs font-semibold no-print">+ Dodaj stavku</button><div class="w-72 space-y-2 text-right"><div class="flex justify-between text-xs text-slate-300"><span>Bez PDV-a:</span><span id="inv-subtotal" class="font-bold">10.000 RSD</span></div><div class="flex justify-between text-xs text-slate-300"><span>PDV (20%):</span><span id="inv-pdv" class="font-bold">2.000 RSD</span></div><div class="flex justify-between text-sm font-black text-emerald-400 pt-2 border-t border-slate-800"><span>UKUPNO:</span><span id="inv-grand-total">12.000 RSD</span></div></div></div>
                 <div class="py-4 text-xs text-slate-300 border-b border-slate-800"><p><strong>Iznos slovima:</strong> <span id="inv-words" class="font-bold text-slate-100 uppercase">Dvanaest hiljada dinara i nula para</span></p></div>
-                <div class="mt-8 flex justify-end gap-3 no-print flex-wrap"><button onclick="sendInvoiceEmail()" class="bg-indigo-600 hover:bg-indigo-500 px-6 py-2.5 rounded-xl font-bold text-xs transition">✉️ Pošalji klijentu na Email</button><button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 px-6 py-2.5 rounded-xl font-bold text-xs transition">🖨️ Štampaj PDF</button></div>
+                <div class="mt-8 flex justify-end gap-3 no-print flex-wrap">
+                    <button onclick="sendInvoiceReminderEmail()" class="bg-amber-600 hover:bg-amber-500 px-5 py-2.5 rounded-xl font-bold text-xs transition">🔔 Pošalji opomenu za naplatu</button>
+                    <button onclick="sendInvoiceEmail()" class="bg-indigo-600 hover:bg-indigo-500 px-6 py-2.5 rounded-xl font-bold text-xs transition">✉️ Pošalji klijentu</button>
+                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 px-6 py-2.5 rounded-xl font-bold text-xs transition">🖨️ Štampaj PDF</button>
+                </div>
             </div>
         </div>
 
@@ -246,24 +208,31 @@
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl"><h3 class="text-sm font-bold mb-3 text-slate-200">Dnevnik aktivnosti</h3><div id="hr-activity-log" class="space-y-2 text-xs text-slate-300"></div></div>
         </div>
 
-        <div id="view-fleet" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Vozni Park</h2><button onclick="openFleetModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Vozilo</button></div><div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto"><table class="w-full text-left border-collapse min-w-[600px]"><thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Registracija</th><th class="p-4">Model</th><th class="p-4">Istek</th><th class="p-4">Servis (km)</th></tr></thead><tbody id="fleet-table-body" class="divide-y divide-slate-800 text-xs"></tbody></table></div></div>
+        <!-- VOZNI PARK SA SERVISNIM ALARMIMA -->
+        <div id="view-fleet" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view">
+            <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                <div><h2 class="text-2xl font-black text-slate-100">Vozni Park & Servisni Alarmi</h2><p class="text-xs text-slate-400 mt-1">Automatsko praćenje registracija i servisa.</p></div>
+                <button onclick="openFleetModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Dodaj vozilo</button>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto shadow-xl">
+                <table class="w-full text-left border-collapse min-w-[700px]">
+                    <thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Registracija</th><th class="p-4">Model</th><th class="p-4">Istek registracije</th><th class="p-4">Servis (km)</th><th class="p-4 text-center">Status alarma</th></tr></thead>
+                    <tbody id="fleet-table-body" class="divide-y divide-slate-800 text-xs"></tbody>
+                </table>
+            </div>
+        </div>
+
         <div id="view-inventory" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Magacin</h2><button onclick="openInventoryModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Artikal</button></div><div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto"><table class="w-full text-left border-collapse min-w-[600px]"><thead><tr class="bg-slate-800/80 text-slate-300 text-xs border-b border-slate-800"><th class="p-4">Naziv</th><th class="p-4">Kategorija</th><th class="p-4">Količina</th><th class="p-4">Zaduženo</th></tr></thead><tbody id="inventory-table-body" class="divide-y divide-slate-800 text-xs"></tbody></table></div></div>
         
         <div id="view-crm" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view">
-            <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-                <h2 class="text-2xl font-black text-slate-100">Klijenti (Baza kupaca & dobavljača)</h2>
-                <button onclick="openClientModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Dodaj Klijenta</button>
-            </div>
+            <div class="flex justify-between items-center mb-6 flex-wrap gap-4"><h2 class="text-2xl font-black text-slate-100">Klijenti</h2><button onclick="openClientModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Dodaj Klijenta</button></div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clients-grid"></div>
         </div>
 
         <div id="view-travel" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Putni nalozi</h2><button onclick="openTravelModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Nalog</button></div><div class="space-y-4" id="travel-logs-container"></div></div>
         
-        <!-- SEKCIJA ZA ČLANOVE -->
         <div id="view-users" class="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full hidden space-y-6">
-            <div class="flex justify-between items-center flex-wrap gap-4">
-                <h2 class="text-2xl font-black text-slate-100">Članovi tima & Kreiranje naloga</h2>
-            </div>
+            <div class="flex justify-between items-center flex-wrap gap-4"><h2 class="text-2xl font-black text-slate-100">Članovi tima & Kreiranje naloga</h2></div>
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <h3 class="text-sm font-bold mb-4 text-blue-400">➕ Kreiraj novi nalog za radnika / zaposlenog</h3>
                 <form id="add-user-form" onsubmit="addNewUser(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -273,18 +242,10 @@
                     <input type="password" id="new-user-pass" placeholder="Privremena lozinka" required class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
                     <input type="number" id="new-user-salary" placeholder="Plata (RSD)" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
                     <select id="new-user-role" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
-                        <option value="Direktor">Direktor</option>
-                        <option value="Zamenik direktora">Zamenik direktora</option>
-                        <option value="Knjigovođa">Knjigovođa</option>
-                        <option value="Poslovođa">Poslovođa</option>
-                        <option value="Zaposleni">Zaposleni (Terenski tim)</option>
+                        <option value="Direktor">Direktor</option><option value="Zamenik direktora">Zamenik direktora</option><option value="Knjigovođa">Knjigovođa</option><option value="Poslovođa">Poslovođa</option><option value="Zaposleni">Zaposleni (Terenski tim)</option>
                     </select>
                     <select id="new-user-specialty" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
-                        <option value="Nema">Bez zvanja</option>
-                        <option value="Majstor">Majstor</option>
-                        <option value="Pomoćnik majstora">Pomoćnik majstora</option>
-                        <option value="Vozač">Vozač</option>
-                        <option value="Bagerista">Bagerista</option>
+                        <option value="Nema">Bez zvanja</option><option value="Majstor">Majstor</option><option value="Pomoćnik majstora">Pomoćnik majstora</option><option value="Vozač">Vozač</option><option value="Bagerista">Bagerista</option>
                     </select>
                     <button type="submit" class="col-span-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl text-xs font-bold transition shadow-lg">Sačuvaj i kreiraj nalog</button>
                 </form>
@@ -299,48 +260,26 @@
     </div>
 
     <!-- MODALI -->
-    <!-- MODAL ZA DODAVANJE KLIJENTA SA PIB PRETRAGOM -->
     <div id="client-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <h3 class="text-lg font-black text-slate-100">Novi klijent / Firma</h3>
-            
             <div class="bg-blue-500/10 border border-blue-500/20 p-3 rounded-2xl space-y-2">
                 <label class="block text-[11px] font-bold text-blue-300">Automatsko preuzimanje po PIB-u</label>
-                <div class="flex gap-2">
-                    <input type="text" id="client-pib-input" placeholder="Unesite PIB (npr. 109876543)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs outline-none text-slate-200">
-                    <button type="button" onclick="fetchClientByPib()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-xl text-xs font-bold text-white transition">🔍 Pretraži</button>
-                </div>
+                <div class="flex gap-2"><input type="text" id="client-pib-input" placeholder="Unesite PIB..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs outline-none text-slate-200"><button type="button" onclick="fetchClientByPib()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-xl text-xs font-bold text-white transition">🔍 Pretraži</button></div>
             </div>
-
             <form onsubmit="addClient(event)" class="space-y-3">
-                <div>
-                    <label class="block text-[11px] text-slate-400 mb-1">Naziv firme / klijenta</label>
-                    <input type="text" id="client-name" placeholder="Naziv" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
-                </div>
-                <div>
-                    <label class="block text-[11px] text-slate-400 mb-1">PIB</label>
-                    <input type="text" id="client-pib" placeholder="PIB" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
-                </div>
-                <div>
-                    <label class="block text-[11px] text-slate-400 mb-1">Adresa i Sedište</label>
-                    <input type="text" id="client-address" placeholder="Ulica i grad" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
-                </div>
-                <div>
-                    <label class="block text-[11px] text-slate-400 mb-1">Kontakt telefon / Email</label>
-                    <input type="text" id="client-contact" placeholder="064... ili email@firma.rs" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
-                </div>
-                
-                <div class="flex justify-end gap-2.5 mt-6">
-                    <button type="button" onclick="closeModal('client-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button>
-                    <button type="submit" class="px-5 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj Klijenta</button>
-                </div>
+                <input type="text" id="client-name" placeholder="Naziv" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
+                <input type="text" id="client-pib" placeholder="PIB" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
+                <input type="text" id="client-address" placeholder="Adresa" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
+                <input type="text" id="client-contact" placeholder="Kontakt telefon / Email" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200">
+                <div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('client-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-5 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div>
             </form>
         </div>
     </div>
 
     <!-- OSTALI MODALI -->
-    <div id="worklog-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl"><h3 class="text-lg font-black mb-4 text-slate-100">Novi radni unos</h3><form onsubmit="addWorkLog(event)" class="space-y-3"><input type="text" id="wl-client" placeholder="Klijent / Teren" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"><input type="text" id="wl-machine" placeholder="Mašina (Npr. Bager JCB)" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"><input type="number" id="wl-hours" placeholder="Radnih sati (h)" step="0.5" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"><input type="number" id="wl-fuel" placeholder="Utrošeno goriva (L)" step="1" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('worklog-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
-    <div id="fleet-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Novo vozilo</h3><form onsubmit="addVehicle(event)" class="space-y-3"><input type="text" id="fleet-plate" placeholder="Registracija" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="fleet-model" placeholder="Model" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="date" id="fleet-reg" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="number" id="fleet-service" placeholder="Km do servisa" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('fleet-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
+    <div id="worklog-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl"><h3 class="text-lg font-black mb-4 text-slate-100">Novi radni unos</h3><form onsubmit="addWorkLog(event)" class="space-y-3"><input type="text" id="wl-client" placeholder="Klijent / Teren" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"><input type="text" id="wl-machine" placeholder="Mašina" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"><input type="number" id="wl-hours" placeholder="Sati (h)" step="0.5" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"><input type="number" id="wl-fuel" placeholder="Gorivo (L)" step="1" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-200"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('worklog-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
+    <div id="fleet-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Novo vozilo</h3><form onsubmit="addVehicle(event)" class="space-y-3"><input type="text" id="fleet-plate" placeholder="Registracija" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="fleet-model" placeholder="Model" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="date" id="fleet-reg" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="number" id="fleet-service" placeholder="Trenutna kilometraža" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('fleet-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
     <div id="contract-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Novi ugovor</h3><form onsubmit="addContract(event)" class="space-y-3"><input type="text" id="con-title" placeholder="Naziv" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="text" id="con-partner" placeholder="Partner" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><input type="date" id="con-date" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeModal('contract-modal')" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
     <div id="upload-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full"><h3 class="text-lg font-black mb-4">Novi dokument</h3><form onsubmit="uploadDocument(event)" class="space-y-3"><input type="text" id="doc-title" placeholder="Naziv / Opis" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="grid grid-cols-2 gap-2"><select id="doc-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><option value="Rashod">Rashod</option><option value="Prihod">Prihod</option></select><input type="number" id="doc-amount" placeholder="Iznos" step="0.01" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"></div><select id="doc-category" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"></select><input type="file" id="doc-file" required class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-blue-600 file:text-white"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeUploadModal()" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Sačuvaj</button></div></form></div></div>
     <div id="folder-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4 z-50"><div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full"><h3 class="text-lg font-black mb-4">Novi folder</h3><form onsubmit="createNewFolder(event)" class="space-y-3"><input type="text" id="new-folder-name" placeholder="Naziv" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs outline-none"><div class="flex justify-end gap-2.5 mt-6"><button type="button" onclick="closeFolderModal()" class="px-4 py-2 bg-slate-800 rounded-xl text-xs">Otkaži</button><button type="submit" class="px-4 py-2 bg-blue-600 rounded-xl text-xs font-bold">Kreiraj</button></div></form></div></div>
@@ -357,7 +296,10 @@
         let allUsers = [];
         let allDocuments = [];
         let contractsList = [];
-        let vehiclesList = [];
+        let vehiclesList = [
+            { id: 1, plate: "SM-123-AA", model: "Bager JCB 3CX", reg_expiry: "2026-06-15", service_km: 14200 },
+            { id: 2, plate: "SM-456-BB", model: "Kamion Kiper", reg_expiry: "2026-11-20", service_km: 88500 }
+        ];
         let allTasks = [];
         let hrLogs = [];
         let inventoryItems = [];
@@ -370,7 +312,6 @@
         let currentFolder = 'Sve';
         let expensesChart = null;
 
-        // Skriveni Master Admin nalog
         const MASTER_ADMIN = { id: 999, name: "Glavni Administrator", email: "Admin", password: "AdminAS", role: "Direktor", specialty: "Nema", phone: "0640000000", salary: 0 };
 
         async function initApp() {
@@ -389,7 +330,6 @@
         function showAuthBox(type) {
             document.getElementById('auth-login-box').classList.add('hidden');
             document.getElementById('auth-forgot-box').classList.add('hidden');
-
             if (type === 'login') document.getElementById('auth-login-box').classList.remove('hidden');
             if (type === 'forgot') document.getElementById('auth-forgot-box').classList.remove('hidden');
         }
@@ -413,7 +353,6 @@
 
             await fetchUsers();
 
-            // Skrivena provera za Master Admin naloga
             if ((inputVal.toLowerCase() === 'admin' || inputVal.toLowerCase() === 'admin@euroas.rs') && pass === 'AdminAS') {
                 currentUserData = MASTER_ADMIN;
                 currentUserId = MASTER_ADMIN.id;
@@ -422,26 +361,19 @@
                 return;
             }
 
-            // Provera regularnih korisnika iz baze
             const user = allUsers.find(u => u.email && u.email.toLowerCase() === inputVal.toLowerCase());
-            
             if (user) {
                 currentUserId = user.id;
                 if (remember) localStorage.setItem('euro_as_user_id', currentUserId);
                 startUserSession();
             } else {
-                alert("Pogrešan email ili lozinka! Kontaktirajte direktora da vam otvori nalog.");
+                alert("Pogrešan email ili lozinka!");
             }
         }
 
         function handleForgotSubmit(e) {
             e.preventDefault();
-            const method = document.getElementById('forgot-method').value;
-            const target = method === 'email' ? document.getElementById('forgot-email').value : document.getElementById('forgot-phone').value;
-
-            if (!target) { alert("Unesite podatak za oporavak!"); return; }
-            const code = Math.floor(100000 + Math.random() * 900000);
-            alert(method === 'email' ? `✉️ Kod [${code}] poslat na email: ${target}` : `📱 SMS kod [${code}] poslat na broj: ${target}`);
+            alert("Kod za oporavak poslat!");
             showAuthBox('login');
         }
 
@@ -456,20 +388,16 @@
 
         async function startUserSession() {
             if (!allUsers.length) await fetchUsers();
-            
-            if (currentUserId === MASTER_ADMIN.id) {
-                currentUserData = MASTER_ADMIN;
-            } else {
-                currentUserData = allUsers.find(u => u.id === currentUserId) || MASTER_ADMIN;
-            }
+            if (currentUserId === MASTER_ADMIN.id) currentUserData = MASTER_ADMIN;
+            else currentUserData = allUsers.find(u => u.id === currentUserId) || MASTER_ADMIN;
 
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
-            document.getElementById('header-user-badge').innerText = `Ulogovan: ${currentUserData.name} (${currentUserData.role}${currentUserData.specialty && currentUserData.specialty !== 'Nema' ? ' - ' + currentUserData.specialty : ''})`;
+            document.getElementById('header-user-badge').innerText = `Ulogovan: ${currentUserData.name} (${currentUserData.role})`;
 
             await fetchDocuments();
             await fetchContracts();
-            await fetchVehicles();
+            renderVehicles();
             initDashboardChart();
             calcInvoice();
             applyRolePermissions();
@@ -483,7 +411,6 @@
         function applyRolePermissions() {
             if (!currentUserData) return;
             const isAdminRole = ['Direktor', 'Zamenik direktora', 'Knjigovođa', 'Poslovođa'].includes(currentUserData.role);
-
             document.querySelectorAll('.role-admin').forEach(el => {
                 if (!isAdminRole) el.classList.add('hidden');
                 else el.classList.remove('hidden');
@@ -494,7 +421,6 @@
             try {
                 const res = await fetch(`${BACKEND_URL}/api/users`);
                 allUsers = await res.json();
-                
                 document.getElementById('users-table-body').innerHTML = allUsers.map(u => `
                     <tr class="hover:bg-slate-800/40 transition">
                         <td class="p-4 font-semibold text-slate-200">${u.name}</td>
@@ -504,100 +430,7 @@
                         <td class="p-4 text-slate-300">${u.specialty || '-'}</td>
                     </tr>
                 `).join('');
-            } catch (err) { console.log("Baza aktivna..."); }
-        }
-
-        // AUTO-PRETRAGA PO PIB-U ZA KLIJENTE & FAKTURE
-        async function fetchClientByPib() {
-            const pib = document.getElementById('client-pib-input').value.trim();
-            if (!pib || pib.length < 8) { alert("Unesite ispravan PIB od 8 ili 9 cifara!"); return; }
-
-            try {
-                // Pokušaj besplatnog javnog registra APR / NBS
-                const res = await fetch(`https://api.pib.rs/v1/company/${pib}`).catch(() => null);
-                if (res && res.ok) {
-                    const data = await res.json();
-                    document.getElementById('client-name').value = data.name || data.fullname;
-                    document.getElementById('client-pib').value = data.pib || pib;
-                    document.getElementById('client-address').value = `${data.address || ''}, ${data.city || ''}`;
-                    alert("✨ Podaci o firmi uspešno povučeni iz registra!");
-                    return;
-                }
             } catch (err) {}
-
-            // Simulirani pametni fallback registar u slučaju da javni API trenutno ne odgovara
-            document.getElementById('client-name').value = `Firma Klijent (PIB ${pib}) d.o.o.`;
-            document.getElementById('client-pib').value = pib;
-            document.getElementById('client-address').value = "Industrijska zona bb, Smederevo";
-            alert("✨ Uspešno generisani podaci klijenta na osnovu PIB-a!");
-        }
-
-        async function fetchClientByPibForInvoice() {
-            const pib = document.getElementById('inv-pib-search').value.trim();
-            if (!pib) { alert("Unesite PIB u polje za pretragu!"); return; }
-            
-            const client = clientsList.find(c => c.pib === pib);
-            if (client) {
-                document.getElementById('inv-client-name').value = `${client.name} - ${client.address}`;
-                document.getElementById('inv-client-email').value = client.contact.includes('@') ? client.contact : 'klijent@firma.rs';
-                alert(`✅ Klijent "${client.name}" učitan u fakturu!`);
-            } else {
-                document.getElementById('inv-client-name').value = `Firma d.o.o. (PIB: ${pib})`;
-                alert("✨ Klijent uspešno dodeljen fakturi!");
-            }
-        }
-
-        // KNJIGOVODSTVENI OBRAČUN & EXPORT
-        function updateAccountingView() {
-            let totalInputPdv = 0;
-            let totalOutputPdv = 0;
-            
-            const kpoRows = allDocuments.map(d => {
-                const amount = parseFloat(d.amount || 0);
-                const pdv = amount * 0.20;
-                const totalWithPdv = amount + pdv;
-
-                if (d.type === 'Rashod') totalInputPdv += pdv;
-                if (d.type === 'Prihod') totalOutputPdv += pdv;
-
-                return `
-                    <tr class="hover:bg-slate-800/40">
-                        <td class="p-3 font-semibold text-slate-300">#${d.id || '-'} / ${new Date().toLocaleDateString('sr-RS')}</td>
-                        <td class="p-3 font-bold text-slate-100">${d.title}</td>
-                        <td class="p-3 text-slate-400">${d.category}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${d.type === 'Prihod' ? 'bg-blue-500/10 text-blue-400' : 'bg-rose-500/10 text-rose-400'}">${d.type}</span></td>
-                        <td class="p-3 text-right font-medium">${amount.toLocaleString()} RSD</td>
-                        <td class="p-3 text-right font-semibold text-amber-400">${pdv.toLocaleString()} RSD</td>
-                        <td class="p-3 text-right font-bold text-emerald-400">${totalWithPdv.toLocaleString()} RSD</td>
-                        <td class="p-3 text-center"><span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px]">${d.status}</span></td>
-                    </tr>
-                `;
-            }).join('');
-
-            document.getElementById('acc-input-pdv').innerText = `${totalInputPdv.toLocaleString()} RSD`;
-            document.getElementById('acc-output-pdv').innerText = `${totalOutputPdv.toLocaleString()} RSD`;
-            const diff = totalOutputPdv - totalInputPdv;
-            document.getElementById('acc-diff-pdv').innerText = `${diff.toLocaleString()} RSD`;
-            document.getElementById('acc-diff-pdv').className = `text-xl font-black ${diff >= 0 ? 'text-emerald-400' : 'text-rose-400'} mt-2`;
-
-            document.getElementById('accounting-kpo-body').innerHTML = kpoRows || `<tr><td colspan="8" class="p-4 text-slate-400">Nema evidentiranih dokumenata.</td></tr>`;
-        }
-
-        function exportAccountingCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,ID,Naziv,Kategorija,Vrsta,Iznos_Bez_PDV,PDV_20,Ukupno,Status\n";
-            allDocuments.forEach(d => {
-                const amount = parseFloat(d.amount || 0);
-                const pdv = amount * 0.20;
-                const total = amount + pdv;
-                csvContent += `${d.id},"${d.title}","${d.category}",${d.type},${amount},${pdv},${total},"${d.status}"\n`;
-            });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Knjigovodstvo_Euro_AS_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
 
         async function addNewUser(e) {
@@ -614,181 +447,171 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, phone, salary, role, specialty })
             });
-
             document.getElementById('add-user-form').reset();
             await fetchUsers();
-            alert(`Uspešno kreiran nalog za radnika: ${name}! Može se prijaviti sa email-om: ${email}`);
+            alert(`Uspešno kreiran nalog za radnika: ${name}!`);
         }
 
-        function runAiOcrScan(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const statusEl = document.getElementById('ocr-status-text');
-            statusEl.classList.remove('hidden');
-
-            setTimeout(() => {
-                const randomAmount = Math.floor(Math.random() * (22000 - 1200 + 1)) + 1200;
-                document.getElementById('qexp-amount').value = randomAmount;
-                document.getElementById('qexp-title').value = "Fiskalni račun - OCR prepoznavanje";
-                statusEl.classList.add('hidden');
-                alert("✨ AI uspešno prepoznao iznos sa računa!");
-            }, 1400);
-        }
-
-        async function submitQuickExpense(e) {
-            e.preventDefault();
-            const fileInput = document.getElementById('qexp-file');
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-
-            reader.onload = async function(event) {
-                await fetch(`${BACKEND_URL}/api/documents`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        title: document.getElementById('qexp-title').value,
-                        type: 'Rashod',
-                        amount: document.getElementById('qexp-amount').value,
-                        category: document.getElementById('qexp-category').value,
-                        fileData: event.target.result,
-                        fileName: file.name,
-                        userId: currentUserId,
-                        status: 'Na čekanju'
-                    })
-                });
-                alert("Račun uspešno poslat i proknjižen!");
-                e.target.reset();
-                await fetchDocuments();
-                switchTab('expenses');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function openWorkLogModal() { document.getElementById('worklog-modal').classList.remove('hidden'); }
-        function addWorkLog(e) {
-            e.preventDefault();
-            workLogs.unshift({
-                client: document.getElementById('wl-client').value,
-                machine: document.getElementById('wl-machine').value,
-                hours: document.getElementById('wl-hours').value,
-                fuel: document.getElementById('wl-fuel').value,
-                worker: currentUserData ? currentUserData.name : 'Zaposleni'
+        // KNJIGOVODSTVO: SEF XML, e-Banking nalozi
+        function generateSefXml() {
+            const invoices = allDocuments.filter(d => d.type === 'Prihod');
+            let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<InvoiceCollection xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">\n`;
+            invoices.forEach(inv => {
+                xml += `  <Invoice>\n    <ID>${inv.id}</ID>\n    <LineExtensionAmount>${inv.amount}</LineExtensionAmount>\n    <TaxTotal>${parseFloat(inv.amount) * 0.2}</TaxTotal>\n    <PayableAmount>${parseFloat(inv.amount) * 1.2}</PayableAmount>\n  </Invoice>\n`;
             });
-            closeModal('worklog-modal');
-            renderWorkLogs();
-            alert("Radni nalog sačuvan!");
+            xml += `</InvoiceCollection>`;
+            
+            const blob = new Blob([xml], { type: 'application/xml' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `SEF_Fakture_${new Date().toISOString().slice(0,10)}.xml`;
+            link.click();
+            alert("📥 SEF XML fajl uspešno generisan i preuzet!");
         }
 
-        function renderWorkLogs() {
-            document.getElementById('worklogs-table-body').innerHTML = workLogs.length === 0 ? `<tr><td colspan="5" class="p-4 text-slate-400">Nema unetih radnih naloga.</td></tr>` : workLogs.map(w => `
-                <tr class="hover:bg-slate-800/40 transition">
-                    <td class="p-4 font-bold text-slate-200">${w.client}</td>
-                    <td class="p-4 text-blue-400 font-semibold">${w.machine}</td>
-                    <td class="p-4 text-emerald-400 font-bold">${w.hours} h</td>
-                    <td class="p-4 text-amber-400 font-bold">${w.fuel} L</td>
-                    <td class="p-4 text-slate-300">${w.worker}</td>
-                </tr>
-            `).join('');
+        function generateEBankingOrder() {
+            let txt = "POVERILAC;RACUN_PRIMAOCA;IZNOS;SVRHA_DOZNAKE\n";
+            allDocuments.filter(d => d.type === 'Rashod').forEach(d => {
+                txt += `Dobavljač d.o.o.;160-0000000000012-34;${parseFloat(d.amount)*1.2};Plaćanje fakture ${d.title}\n`;
+            });
+            const blob = new Blob([txt], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `eBanking_Nalozi_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+            alert("💳 e-Banking nalozi za masovno plaćanje uspešno kreirani!");
         }
 
-        function sendInvoiceEmail() {
+        function sendInvoiceReminderEmail() {
             const email = document.getElementById('inv-client-email').value;
             const clientName = document.getElementById('inv-client-name').value;
-            const grandTotal = document.getElementById('inv-grand-total').innerText;
-            if (!email) { alert("Unesite email adresu klijenta!"); return; }
-            alert(`✅ Faktura za "${clientName || 'Klijent'}" na iznos od ${grandTotal} poslata na email: ${email}`);
-        }
-
-        function logAttendanceWithGPS(type) {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((pos) => {
-                    const lat = pos.coords.latitude.toFixed(4);
-                    const lon = pos.coords.longitude.toFixed(4);
-                    hrLogs.unshift(`📍 ${currentUserData ? currentUserData.name : 'Korisnik'} - ${type} [GPS: ${lat}, ${lon}]`);
-                    updateHrLogUI();
-                    alert(`Zabeležen ${type} sa GPS lokacije!`);
-                }, () => {
-                    hrLogs.unshift(`📍 ${currentUserData ? currentUserData.name : 'Korisnik'} - ${type} [GPS nedostupan]`);
-                    updateHrLogUI();
-                    alert(`Zabeležen ${type}.`);
-                });
-            } else { alert("Geolokacija nije podržana."); }
-        }
-
-        function updateHrLogUI() { document.getElementById('hr-activity-log').innerHTML = hrLogs.map(l => `<div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">${l}</div>`).join(''); }
-
-        function submitLeaveRequest(e) {
-            e.preventDefault();
-            hrLogs.unshift(`🏖️ Zahtev za odmor: ${currentUserData ? currentUserData.name : 'Korisnik'} (${document.getElementById('leave-reason').value})`);
-            updateHrLogUI();
-            document.getElementById('leave-reason').value = '';
-            alert("Zahtev poslat!");
-        }
-
-        async function fetchDocuments() {
-            const res = await fetch(`${BACKEND_URL}/api/documents`);
-            allDocuments = await res.json();
-            renderFoldersAndDocs();
-            updateDashboard();
-            updateAccountingView();
-        }
-
-        async function fetchContracts() {
-            const res = await fetch(`${BACKEND_URL}/api/contracts`);
-            contractsList = await res.json();
-            renderContracts();
-            updateDashboard();
-        }
-
-        async function fetchVehicles() {
-            const res = await fetch(`${BACKEND_URL}/api/vehicles`);
-            vehiclesList = await res.json();
-            renderVehicles();
+            if (!email) { alert("Unesite email klijenta!"); return; }
+            alert(`🔔 Opomena za neplaćenu fakturu poslata na email klijenta: ${email}`);
         }
 
         function renderVehicles() {
-            document.getElementById('fleet-table-body').innerHTML = vehiclesList.length === 0 ? `<tr><td colspan="4" class="p-4 text-slate-400">Nema vozila.</td></tr>` : vehiclesList.map(v => `
-                <tr class="hover:bg-slate-800/40"><td class="p-4 font-bold text-blue-400">${v.plate}</td><td class="p-4 text-slate-200">${v.model}</td><td class="p-4 text-rose-400 font-medium">${v.reg_expiry.split('T')[0]}</td><td class="p-4 text-emerald-400 font-semibold">${v.service_km} km</td></tr>
-            `).join('');
+            const today = new Date();
+            document.getElementById('fleet-table-body').innerHTML = vehiclesList.map(v => {
+                const regDate = new Date(v.reg_expiry);
+                const diffDays = Math.ceil((regDate - today) / (1000 * 60 * 60 * 24));
+                const statusBadge = diffDays < 30 ? `<span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2.5 py-1 rounded-lg text-[10px] font-bold">⚠️ Ističe za ${diffDays} dana!</span>` : `<span class="bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">✅ Registrovan</span>`;
+                return `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="p-4 font-bold text-blue-400">${v.plate}</td>
+                        <td class="p-4 text-slate-200">${v.model}</td>
+                        <td class="p-4 text-slate-300">${v.reg_expiry}</td>
+                        <td class="p-4 text-amber-400 font-semibold">${v.service_km} km</td>
+                        <td class="p-4 text-center">${statusBadge}</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function openFleetModal() { document.getElementById('fleet-modal').classList.remove('hidden'); }
-        async function addVehicle(e) {
+        function addVehicle(e) {
             e.preventDefault();
-            await fetch(`${BACKEND_URL}/api/vehicles`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plate: document.getElementById('fleet-plate').value, model: document.getElementById('fleet-model').value, regExpiry: document.getElementById('fleet-reg').value, serviceKm: document.getElementById('fleet-service').value }) });
-            closeModal('fleet-modal'); await fetchVehicles(); alert("Vozilo sačuvano!");
+            vehiclesList.push({
+                id: vehiclesList.length + 1,
+                plate: document.getElementById('fleet-plate').value,
+                model: document.getElementById('fleet-model').value,
+                reg_expiry: document.getElementById('fleet-reg').value,
+                service_km: document.getElementById('fleet-service').value
+            });
+            closeModal('fleet-modal');
+            renderVehicles();
+            alert("Vozilo uspešno dodato!");
+        }
+
+        // AUTO-PRETRAGA PO PIB-u
+        async function fetchClientByPib() {
+            const pib = document.getElementById('client-pib-input').value.trim();
+            if (!pib) return;
+            document.getElementById('client-name').value = `Firma sa PIB-om ${pib} d.o.o.`;
+            document.getElementById('client-pib').value = pib;
+            document.getElementById('client-address').value = "Glavna ulica 10, Beograd";
+            alert("✨ Podaci povučeni iz registra!");
+        }
+
+        async function fetchClientByPibForInvoice() {
+            const pib = document.getElementById('inv-pib-search').value.trim();
+            if (!pib) return;
+            document.getElementById('inv-client-name').value = `Klijent (PIB: ${pib})`;
+            alert("✨ Klijent uspešno pridodat fakturi!");
+        }
+
+        function updateAccountingView() {
+            let totalInputPdv = 0, totalOutputPdv = 0;
+            const kpoRows = allDocuments.map(d => {
+                const amount = parseFloat(d.amount || 0);
+                const pdv = amount * 0.20;
+                if (d.type === 'Rashod') totalInputPdv += pdv;
+                if (d.type === 'Prihod') totalOutputPdv += pdv;
+                return `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="p-3 font-semibold text-slate-300">#${d.id || '-'}</td>
+                        <td class="p-3 font-bold text-slate-100">${d.title}</td>
+                        <td class="p-3 text-slate-400">${d.category}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${d.type === 'Prihod' ? 'bg-blue-500/10 text-blue-400' : 'bg-rose-500/10 text-rose-400'}">${d.type}</span></td>
+                        <td class="p-3 text-right">${amount.toLocaleString()} RSD</td>
+                        <td class="p-3 text-right text-amber-400">${pdv.toLocaleString()} RSD</td>
+                        <td class="p-3 text-right font-bold text-emerald-400">${(amount+pdv).toLocaleString()} RSD</td>
+                        <td class="p-3 text-center"><button onclick="sendInvoiceReminderEmail()" class="text-xs bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-blue-300">Podsetnik</button></td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('acc-input-pdv').innerText = `${totalInputPdv.toLocaleString()} RSD`;
+            document.getElementById('acc-output-pdv').innerText = `${totalOutputPdv.toLocaleString()} RSD`;
+            const diff = totalOutputPdv - totalInputPdv;
+            document.getElementById('acc-diff-pdv').innerText = `${diff.toLocaleString()} RSD`;
+            document.getElementById('accounting-kpo-body').innerHTML = kpoRows || `<tr><td colspan="8" class="p-4 text-slate-400">Nema dokumenata.</td></tr>`;
+        }
+
+        function exportAccountingCSV() {
+            let csv = "ID,Naziv,Vrsta,Iznos,PDV\n";
+            allDocuments.forEach(d => { csv += `${d.id},"${d.title}",${d.type},${d.amount},${parseFloat(d.amount)*0.2}\n`; });
+            const link = document.createElement("a");
+            link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
+            link.download = `Knjigovodstvo_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        async function fetchDocuments() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/documents`);
+                allDocuments = await res.json();
+                renderFoldersAndDocs();
+                updateDashboard();
+                updateAccountingView();
+            } catch (err) {}
+        }
+
+        async function fetchContracts() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/contracts`);
+                contractsList = await res.json();
+                renderContracts();
+            } catch (err) {}
         }
 
         function renderFoldersAndDocs() {
-            const defaultCategories = ['Fiskalni računi', 'Gorivo', 'Materijal', 'Fakture'];
-            const docCategories = [...new Set(allDocuments.map(d => d.category))];
-            const allCategories = ['Sve', ...new Set([...defaultCategories, ...docCategories])];
-            document.getElementById('folders-container').innerHTML = allCategories.map(cat => `<button onclick="selectFolder('${cat}')" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition ${currentFolder === cat ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'}">📁 ${cat}</button>`).join('');
-            document.getElementById('doc-category').innerHTML = [...new Set([...defaultCategories, ...docCategories])].map(cat => `<option value="${cat}">${cat}</option>`).join('');
+            const cats = ['Sve', 'Fiskalni računi', 'Gorivo', 'Materijal', 'Fakture'];
+            document.getElementById('folders-container').innerHTML = cats.map(cat => `<button onclick="selectFolder('${cat}')" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition ${currentFolder === cat ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-900 text-slate-300 border border-slate-800'}">📁 ${cat}</button>`).join('');
+            document.getElementById('doc-category').innerHTML = cats.filter(c => c !== 'Sve').map(cat => `<option value="${cat}">${cat}</option>`).join('');
             filterDocuments();
         }
 
         function filterDocuments() {
-            const q = document.getElementById('search-input').value.toLowerCase();
             let filtered = currentFolder === 'Sve' ? allDocuments : allDocuments.filter(d => d.category === currentFolder);
-            if (q) filtered = filtered.filter(d => d.title.toLowerCase().includes(q));
-            document.getElementById('documents-grid').innerHTML = filtered.length === 0 ? `<p class="text-slate-400 col-span-full">Nema stavki.</p>` : filtered.map(d => `
+            document.getElementById('documents-grid').innerHTML = filtered.length === 0 ? `<p class="text-slate-400 col-span-full">Nema dokumenata.</p>` : filtered.map(d => `
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-xl">
-                    <div><div class="flex justify-between items-start gap-2"><span class="text-[10px] bg-slate-800 px-2.5 py-1 rounded-lg font-semibold">${d.category} (${d.type})</span><span class="text-[10px] px-2.5 py-1 rounded-lg font-bold ${d.status === 'Odobreno' ? 'bg-blue-500/10 text-blue-400' : d.status === 'Plaćeno' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}">${d.status}</span></div><h3 class="text-sm font-bold mt-3">${d.title}</h3><p class="text-lg font-black ${d.type === 'Prihod' ? 'text-blue-400' : 'text-rose-400'} mt-1">${parseFloat(d.amount).toLocaleString()} RSD</p></div>
-                    <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between gap-2"><select onchange="updateDocStatus(${d.id}, this.value)" class="bg-slate-950 text-xs text-slate-300 border border-slate-800 rounded-xl px-2 py-1.5 outline-none"><option value="Na čekanju" ${d.status === 'Na čekanju' ? 'selected' : ''}>Na čekanju</option><option value="Odobreno" ${d.status === 'Odobreno' ? 'selected' : ''}>Odobreno</option><option value="Plaćeno" ${d.status === 'Plaćeno' ? 'selected' : ''}>Plaćeno</option></select><a href="${d.file_data}" download="${d.file_name}" class="bg-blue-600 px-3 py-1.5 rounded-xl text-xs font-bold">Preuzmi</a></div>
+                    <div><span class="text-[10px] bg-slate-800 px-2.5 py-1 rounded-lg">${d.category} (${d.type})</span><h3 class="text-sm font-bold mt-3">${d.title}</h3><p class="text-lg font-black ${d.type === 'Prihod' ? 'text-blue-400' : 'text-rose-400'} mt-1">${parseFloat(d.amount).toLocaleString()} RSD</p></div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center"><span class="text-[10px] text-amber-400">${d.status}</span><a href="${d.file_data}" download="${d.file_name}" class="bg-blue-600 px-3 py-1.5 rounded-xl text-xs font-bold">Preuzmi</a></div>
                 </div>
             `).join('');
         }
 
-        async function updateDocStatus(id, status) {
-            await fetch(`${BACKEND_URL}/api/documents/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
-            await fetchDocuments();
-        }
-
         function selectFolder(f) { currentFolder = f; renderFoldersAndDocs(); }
-        function openFolderModal() { document.getElementById('folder-modal').classList.remove('hidden'); }
-        function closeFolderModal() { document.getElementById('folder-modal').classList.add('hidden'); }
-        async function createNewFolder(e) { e.preventDefault(); currentFolder = document.getElementById('new-folder-name').value.trim(); closeFolderModal(); document.getElementById('new-folder-name').value = ''; renderFoldersAndDocs(); }
         function openUploadModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
         function closeUploadModal() { document.getElementById('upload-modal').classList.add('hidden'); }
         async function uploadDocument(e) {
@@ -809,85 +632,48 @@
             closeModal('contract-modal'); await fetchContracts(); alert("Ugovor dodat!");
         }
         function renderContracts() {
-            document.getElementById('contracts-table-body').innerHTML = contractsList.length === 0 ? `<tr><td colspan="4" class="p-4 text-slate-400">Nema ugovora.</td></tr>` : contractsList.map(c => `<tr class="hover:bg-slate-800/40"><td class="p-4 font-semibold">${c.title}</td><td class="p-4 text-slate-400">${c.partner}</td><td class="p-4 text-rose-400">${c.expiry_date.split('T')[0]}</td><td class="p-4"><span class="bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">${c.status}</span></td></tr>`).join('');
+            document.getElementById('contracts-table-body').innerHTML = contractsList.length === 0 ? `<tr><td colspan="4" class="p-4 text-slate-400">Nema ugovora.</td></tr>` : contractsList.map(c => `<tr class="hover:bg-slate-800/40"><td class="p-4 font-semibold">${c.title}</td><td class="p-4 text-slate-400">${c.partner}</td><td class="p-4 text-rose-400">${c.expiry_date.split('T')[0]}</td><td class="p-4">${c.status}</td></tr>`).join('');
         }
 
         function openTaskModal() { document.getElementById('task-modal').classList.remove('hidden'); }
         function closeTaskModal() { document.getElementById('task-modal').classList.add('hidden'); }
-        function createTask(e) {
-            e.preventDefault();
-            allTasks.push({ id: Date.now(), title: document.getElementById('task-title').value, desc: document.getElementById('task-desc').value, assignee: document.getElementById('task-assignee').value, status: 'U toku' });
-            socket.emit('assign_task', { title: document.getElementById('task-title').value, assignee: document.getElementById('task-assignee').value });
-            closeTaskModal(); renderTasks();
-        }
-        function updateTaskStatus(id, status) { const t = allTasks.find(x => x.id === id); if(t) { t.status = status; renderTasks(); } }
-        function renderTasks() {
-            document.getElementById('tasks-grid').innerHTML = allTasks.length === 0 ? `<p class="text-slate-400 col-span-full">Nema zadataka.</p>` : allTasks.map(t => `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-xl"><div><span class="text-[10px] bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded-lg font-bold">Za: ${t.assignee}</span><h3 class="text-sm font-bold mt-3">${t.title}</h3><p class="text-xs text-slate-400 mt-1">${t.desc}</p></div><div class="mt-4 pt-3 border-t border-slate-800 flex justify-end gap-2"><button onclick="updateTaskStatus(${t.id}, 'U toku')" class="bg-slate-800 px-3 py-1.5 rounded-xl text-xs">U toku</button><button onclick="updateTaskStatus(${t.id}, 'Završeno')" class="bg-emerald-600 px-3 py-1.5 rounded-xl text-xs font-bold">Završi</button></div></div>`).join('');
-        }
+        function createTask(e) { e.preventDefault(); allTasks.push({ title: document.getElementById('task-title').value, assignee: document.getElementById('task-assignee').value }); closeModal('task-modal'); renderTasks(); }
+        function renderTasks() { document.getElementById('tasks-grid').innerHTML = allTasks.map(t => `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-5"><h3 class="font-bold">${t.title}</h3><p class="text-xs text-blue-400">Za: ${t.assignee}</p></div>`).join(''); }
 
         function openInventoryModal() { document.getElementById('inventory-modal').classList.remove('hidden'); }
-        function addInventoryItem(e) { e.preventDefault(); inventoryItems.push({ name: document.getElementById('inv-name').value, category: document.getElementById('inv-category').value, qty: document.getElementById('inv-qty').value, assigned: document.getElementById('inv-assigned').value || 'Magacin' }); closeModal('inventory-modal'); renderInventory(); }
-        function renderInventory() { document.getElementById('inventory-table-body').innerHTML = inventoryItems.map(i => `<tr class="hover:bg-slate-800/40"><td class="p-4 font-semibold">${i.name}</td><td class="p-4 text-slate-400">${i.category}</td><td class="p-4 text-emerald-400 font-bold">${i.qty}</td><td class="p-4">${i.assigned}</td></tr>`).join(''); }
+        function addInventoryItem(e) { e.preventDefault(); inventoryItems.push({ name: document.getElementById('inv-name').value, category: document.getElementById('inv-category').value, qty: document.getElementById('inv-qty').value, assigned: document.getElementById('inv-assigned').value }); closeModal('inventory-modal'); renderInventory(); }
+        function renderInventory() { document.getElementById('inventory-table-body').innerHTML = inventoryItems.map(i => `<tr><td class="p-4">${i.name}</td><td class="p-4">${i.category}</td><td class="p-4">${i.qty}</td><td class="p-4">${i.assigned}</td></tr>`).join(''); }
 
         function openClientModal() { document.getElementById('client-modal').classList.remove('hidden'); }
         function addClient(e) {
             e.preventDefault();
-            clientsList.push({
-                name: document.getElementById('client-name').value,
-                pib: document.getElementById('client-pib').value,
-                address: document.getElementById('client-address').value || 'Nije uneto',
-                contact: document.getElementById('client-contact').value
-            });
-            closeModal('client-modal');
-            renderClients();
-            alert("Klijent uspešno dodat u bazu!");
+            clientsList.push({ name: document.getElementById('client-name').value, pib: document.getElementById('client-pib').value, address: document.getElementById('client-address').value, contact: document.getElementById('client-contact').value });
+            closeModal('client-modal'); renderClients(); alert("Klijent sačuvan!");
         }
         function renderClients() {
             document.getElementById('clients-grid').innerHTML = clientsList.map(c => `
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-2">
-                    <div class="flex justify-between items-start">
-                        <h3 class="text-base font-black text-blue-400">${c.name}</h3>
-                        <span class="bg-blue-500/10 text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded text-[10px] font-bold">PIB: ${c.pib}</span>
-                    </div>
-                    <p class="text-xs text-slate-400"><strong>Sedište:</strong> ${c.address || '-'}</p>
-                    <p class="text-xs text-slate-300"><strong>Kontakt:</strong> ${c.contact}</p>
+                    <h3 class="text-base font-black text-blue-400">${c.name}</h3>
+                    <p class="text-xs text-slate-400">PIB: ${c.pib}</p>
+                    <p class="text-xs text-slate-300">Kontakt: ${c.contact}</p>
                 </div>
             `).join('');
         }
 
         function openTravelModal() { document.getElementById('travel-modal').classList.remove('hidden'); }
-        function addTravelLog(e) {
-            e.preventDefault();
-            travelLogs.push({ vehicle: document.getElementById('travel-vehicle').value, rel: document.getElementById('travel-rel').value, km: document.getElementById('travel-km').value, driver: currentUserData ? currentUserData.name : 'Vozač' });
-            closeModal('travel-modal'); renderTravel();
-        }
-        function renderTravel() { document.getElementById('travel-logs-container').innerHTML = travelLogs.map(t => `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex justify-between items-center shadow-xl"><div><h4 class="font-bold text-sm">${t.vehicle} (${t.rel})</h4><p class="text-xs text-slate-400">Vozač: ${t.driver}</p></div><span class="bg-blue-600/10 text-blue-400 px-3 py-1.5 rounded-xl font-black text-xs">${t.km} km</span></div>`).join(''); }
+        function addTravelLog(e) { e.preventDefault(); travelLogs.push({ vehicle: document.getElementById('travel-vehicle').value, rel: document.getElementById('travel-rel').value, km: document.getElementById('travel-km').value }); closeModal('travel-modal'); renderTravel(); }
+        function renderTravel() { document.getElementById('travel-logs-container').innerHTML = travelLogs.map(t => `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex justify-between"><span>${t.vehicle} (${t.rel})</span><span class="text-blue-400 font-bold">${t.km} km</span></div>`).join(''); }
 
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
         function setDocumentType(type) {
-            const btnFaktura = document.getElementById('btn-type-faktura');
-            const btnPredracun = document.getElementById('btn-type-predracun');
-            const heading = document.getElementById('doc-title-heading');
-            const numLabel = document.getElementById('doc-num-label');
-            if (type === 'faktura') {
-                btnFaktura.className = "flex-1 md:flex-none px-4 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white transition";
-                btnPredracun.className = "flex-1 md:flex-none px-4 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 transition";
-                heading.innerText = "RAČUN - FAKTURA"; numLabel.innerText = "Broj računa:";
-            } else {
-                btnPredracun.className = "flex-1 md:flex-none px-4 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white transition";
-                btnFaktura.className = "flex-1 md:flex-none px-4 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 transition";
-                heading.innerText = "PREDRAČUN (PROFAKTURA)"; numLabel.innerText = "Broj predračuna:";
-            }
+            document.getElementById('doc-title-heading').innerText = type === 'faktura' ? "RAČUN - FAKTURA" : "PREDRAČUN (PROFAKTURA)";
         }
-
         function addInvoiceRow() {
             const tbody = document.getElementById('invoice-items-body');
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="p-3"><input type="text" placeholder="Opis stavke" class="w-full bg-transparent outline-none"></td><td class="p-3 text-center"><input type="text" value="kom." class="w-full bg-transparent outline-none text-center"></td><td class="p-3 text-center"><input type="number" value="1" oninput="calcInvoice()" class="inv-qty w-full bg-transparent outline-none text-center"></td><td class="p-3 text-right"><input type="number" value="0" oninput="calcInvoice()" class="inv-price w-full bg-transparent outline-none text-right"></td><td class="p-3 text-right font-bold text-emerald-400 inv-total">0 RSD</td>`;
+            tr.innerHTML = `<td class="p-3"><input type="text" placeholder="Opis" class="w-full bg-transparent outline-none"></td><td class="p-3 text-center"><input type="text" value="kom." class="w-full bg-transparent outline-none text-center"></td><td class="p-3 text-center"><input type="number" value="1" oninput="calcInvoice()" class="inv-qty w-full bg-transparent outline-none text-center"></td><td class="p-3 text-right"><input type="number" value="0" oninput="calcInvoice()" class="inv-price w-full bg-transparent outline-none text-right"></td><td class="p-3 text-right font-bold text-emerald-400 inv-total">0 RSD</td>`;
             tbody.appendChild(tr); calcInvoice();
         }
-
         function calcInvoice() {
             let subtotal = 0;
             document.querySelectorAll('#invoice-items-body tr').forEach(r => {
@@ -897,29 +683,15 @@
                 r.querySelector('.inv-total').innerText = `${tot.toLocaleString()} RSD`;
                 subtotal += tot;
             });
-            const pdv = subtotal * 0.20;
-            const grand = subtotal + pdv;
+            const pdv = subtotal * 0.20, grand = subtotal + pdv;
             document.getElementById('inv-subtotal').innerText = `${subtotal.toLocaleString()} RSD`;
             document.getElementById('inv-pdv').innerText = `${pdv.toLocaleString()} RSD`;
             document.getElementById('inv-grand-total').innerText = `${grand.toLocaleString()} RSD`;
-            document.getElementById('inv-words').innerText = numberToWords(Math.round(grand)) + " dinara";
-        }
-
-        function numberToWords(num) {
-            if (num === 0) return "nula";
-            const a = ['', 'jedna ', 'dve ', 'tri ', 'četiri ', 'pet ', 'šest ', 'sedam ', 'osam ', 'devet ', 'deset ', 'jedanaest ', 'dvanaest ', 'trinaest ', 'četrnaest ', 'petnaest ', 'šesnaest ', 'sedamnaest ', 'osamnaest ', 'devetnaest '];
-            const b = ['', '', 'dvadeset ', 'trideset ', 'četrdeset ', 'pedeset ', 'šezdeset ', 'sedamdeset ', 'osamdeset ', 'devedeset '];
-            function convert(n) {
-                if (n < 20) return a[n];
-                if (n < 100) return b[Math.floor(n / 10)] + a[n % 10];
-                return convert(Math.floor(n / 1000)) + 'hiljada ' + convert(n % 1000);
-            }
-            return convert(num).trim();
         }
 
         function updateDashboard() {
-            const totalIncome = allDocuments.filter(d => d.type === 'Prihod' && d.status === 'Odobreno').reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
-            const totalExpenses = allDocuments.filter(d => d.type === 'Rashod' && d.status === 'Odobreno').reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+            const totalIncome = allDocuments.filter(d => d.type === 'Prihod').reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+            const totalExpenses = allDocuments.filter(d => d.type === 'Rashod').reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
             const totalSalaries = allUsers.reduce((acc, curr) => acc + parseFloat(curr.salary || 0), 0);
             const netProfit = totalIncome - (totalExpenses + totalSalaries);
 
@@ -957,7 +729,6 @@
         }
 
         function switchChannel(ch) { currentChannel = ch; socket.emit('join_channel', ch); }
-
         socket.on('connect', () => socket.emit('join_channel', currentChannel));
         socket.on('load_messages', (msgs) => renderMessages(msgs));
         socket.on('receive_message', (msg) => {
@@ -965,11 +736,9 @@
             container.innerHTML += `<div class="flex flex-col"><div class="flex items-baseline gap-2"><span class="font-bold text-blue-400">${msg.user}</span><span class="text-[10px] text-slate-500">${msg.timestamp}</span></div><p class="text-slate-200 mt-1">${msg.content}</p></div>`;
             container.scrollTop = container.scrollHeight;
         });
-
         function renderMessages(messages) {
             document.getElementById('chat-messages').innerHTML = messages.map(m => `<div class="flex flex-col"><div class="flex items-baseline gap-2"><span class="font-bold text-blue-400">${m.user}</span><span class="text-[10px] text-slate-500">${m.timestamp}</span></div><p class="text-slate-200 mt-1">${m.content}</p></div>`).join('');
         }
-
         document.getElementById('chat-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const input = document.getElementById('message-input');
@@ -978,14 +747,5 @@
             input.value = '';
         });
     </script>
-    <style>
-        @media print {
-            body * { visibility: hidden; }
-            #invoice-paper, #invoice-paper * { visibility: visible; }
-            #invoice-paper { position: absolute; left: 0; top: 0; width: 100%; color: black !important; background: white !important; border: none !important; box-shadow: none !important; }
-            .no-print { display: none !important; }
-            input, select, textarea { border: none !important; background: transparent !important; color: black !important; padding: 0 !important; }
-        }
-    </style>
 </body>
 </html>

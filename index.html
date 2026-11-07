@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Euro AS Company - Enterprise ERP Pro</title>
+    <!-- PWA Manifest & Theme -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -525,7 +529,11 @@
             await fetchDocuments(); await fetchContracts();
             renderVehicles(); renderSites(); renderTools(); renderSafety(); renderOvertime();
             renderCashbox(); renderTickets(); renderCalendar(); renderWorkLogs(); renderClients(); renderFolders();
-            initDashboardChart(); calcInvoice(); applyRolePermissions(); checkNotifications();
+            initDashboardChart(); calcInvoice(); applyRolePermissions(); 
+            
+            // Rešeno zaglavljeno zvonce - postavljeno na 0 po difoltu
+            document.getElementById('notif-badge').classList.add('hidden');
+            
             switchTab('dashboard');
         }
 
@@ -552,7 +560,7 @@
         }
 
         function toggleNotificationsModal() { document.getElementById('notifications-modal').classList.toggle('hidden'); }
-        function checkNotifications() { const badge = document.getElementById('notif-badge'); badge.innerText = "2"; badge.classList.remove('hidden'); }
+        function checkNotifications() { document.getElementById('notif-badge').classList.add('hidden'); }
 
         function openFolderModal() { document.getElementById('folder-modal').classList.remove('hidden'); }
         function createNewFolder(e) {

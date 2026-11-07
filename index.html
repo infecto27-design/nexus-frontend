@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusConnect - Poslovni Portal</title>
+    <title>NexusConnect - Poslovni ERP Sistem</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 h-screen flex flex-col">
 
     <!-- Zaglavlje -->
-    <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold text-blue-400">NexusConnect</h1>
+    <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center flex-wrap gap-3">
+        <h1 class="text-xl font-bold text-blue-400">NexusConnect ERP</h1>
         <div class="flex items-center gap-2 flex-wrap">
             <button onclick="switchTab('chat')" id="tab-chat" class="px-3 py-1.5 rounded-lg bg-blue-600 font-medium text-sm transition">Chat</button>
-            <button onclick="switchTab('docs')" id="tab-docs" class="px-3 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-sm transition">Dokumenti i Folderi</button>
+            <button onclick="switchTab('docs')" id="tab-docs" class="px-3 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-sm transition">Fakture i Računi</button>
+            <button onclick="switchTab('tasks')" id="tab-tasks" class="px-3 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-sm transition">Zadaci</button>
+            <button onclick="switchTab('hr')" id="tab-hr" class="px-3 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-sm transition">Radno vreme</button>
             <button onclick="switchTab('users')" id="tab-users" class="px-3 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-sm transition">Članovi</button>
             
-            <div class="flex items-center gap-2 ml-4 bg-slate-700 px-3 py-1 rounded-lg">
+            <div class="flex items-center gap-2 ml-2 bg-slate-700 px-3 py-1 rounded-lg">
                 <span class="text-xs text-slate-400">Korisnik:</span>
                 <select id="active-user-select" onchange="changeActiveUser(this.value)" class="bg-slate-800 text-slate-100 text-sm rounded px-2 py-1 outline-none">
                 </select>
@@ -25,51 +27,99 @@
         </div>
     </header>
 
-    <!-- 1. Chat Sekcija -->
+    <!-- 1. Chat Sekcija sa sređenim kanalima -->
     <div id="view-chat" class="flex flex-1 overflow-hidden">
-        <div class="w-64 bg-slate-800/50 border-r border-slate-700 p-4 flex flex-col gap-2">
-            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Kanali</h2>
-            <button onclick="switchChannel('general')" id="btn-general" class="text-left px-3 py-2 rounded-lg bg-blue-600 font-medium transition"># generalni</button>
-            <button onclick="switchChannel('fakture')" id="btn-fakture" class="text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition"># fakture-i-racuni</button>
-            <button onclick="switchChannel('announcements')" id="btn-announcements" class="text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition"># obaveštenja</button>
+        <div class="w-64 bg-slate-800/50 border-r border-slate-700 p-4 flex flex-col gap-2 overflow-y-auto">
+            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Poslovni Kanali</h2>
+            <button onclick="switchChannel('generalni')" id="btn-generalni" class="text-left px-3 py-2 rounded-lg bg-blue-600 font-medium transition text-sm"># generalni</button>
+            <button onclick="switchChannel('uprava')" id="btn-uprava" class="text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm"># uprava-i-direktorijum</button>
+            <button onclick="switchChannel('racunovodstvo')" id="btn-racunovodstvo" class="text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm"># racunovodstvo</button>
+            <button onclick="switchChannel('nabavka-teren')" id="btn-nabavka-teren" class="text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm"># nabavka-i-teren</button>
+            <button onclick="switchChannel('obavestenja')" id="btn-obavestenja" class="text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm"># obavestenja</button>
         </div>
 
         <div class="flex-1 flex flex-col bg-slate-900">
             <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
             <form id="chat-form" class="p-4 bg-slate-800 border-t border-slate-700 flex gap-2">
-                <input type="text" id="message-input" placeholder="Napišite poruku..." autocomplete="off"
+                <input type="text" id="message-input" placeholder="Napišite poruku u kanal..." autocomplete="off"
                     class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
                 <button type="submit" class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-lg font-medium transition">Pošalji</button>
             </form>
         </div>
     </div>
 
-    <!-- 2. Dokumenti i Folderi Sekcija -->
+    <!-- 2. Dokumenti i Finansije (Računi sa iznosima) -->
     <div id="view-docs" class="flex-1 p-6 overflow-y-auto hidden flex flex-col">
         <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
-            <h2 class="text-2xl font-bold text-slate-100">Arhiva i Fakture</h2>
+            <div>
+                <h2 class="text-2xl font-bold text-slate-100">Fakture, Računi i Troškovi</h2>
+                <p class="text-sm text-slate-400 mt-1" id="total-expenses-summary">Ukupni troškovi: 0 RSD</p>
+            </div>
             <div class="flex gap-2">
                 <button onclick="openFolderModal()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-medium text-sm transition">+ Novi folder</button>
-                <button onclick="openUploadModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition">+ Dodaj dokument</button>
+                <button onclick="openUploadModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition">+ Dodaj finansijski dokument</button>
             </div>
         </div>
 
-        <!-- Traka za pretragu -->
         <div class="mb-4">
-            <input type="text" id="search-input" oninput="filterDocuments()" placeholder="Pretraži račune ili fakture po nazivu..." 
+            <input type="text" id="search-input" oninput="filterDocuments()" placeholder="Pretraži račune po nazivu ili iznosu..." 
                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 outline-none focus:border-blue-500 text-sm">
         </div>
 
-        <!-- Lista Folderčića / Kategorija -->
-        <div id="folders-container" class="flex gap-2 overflow-x-auto pb-4 mb-6 border-b border-slate-700">
-        </div>
+        <div id="folders-container" class="flex gap-2 overflow-x-auto pb-4 mb-6 border-b border-slate-700"></div>
         
-        <!-- Prikaz fajlova -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="documents-grid">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="documents-grid"></div>
+    </div>
+
+    <!-- 3. Modul za Zadatke (Task Manager) -->
+    <div id="view-tasks" class="flex-1 p-6 overflow-y-auto hidden max-w-5xl mx-auto w-full">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-slate-100">Radni Zadaci i Naloji</h2>
+            <button onclick="openTaskModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-medium text-sm transition">+ Kreiraj novi zadatak</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="tasks-grid">
+            <!-- Zadaci -->
         </div>
     </div>
 
-    <!-- 3. Članovi Sekcija -->
+    <!-- 4. Modul za Radno Vreme i Odsustva -->
+    <div id="view-hr" class="flex-1 p-6 overflow-y-auto hidden max-w-4xl mx-auto w-full space-y-6">
+        <h2 class="text-2xl font-bold text-slate-100">Evidencija Radnog Vremena i Odmora</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-slate-200">Prisustvo na poslu</h3>
+                    <p class="text-sm text-slate-400 mb-4">Evidentirajte svoj dolazak ili odlazak sa posla jednim klikom.</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="logAttendance('Prijava dolaska')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-lg font-medium text-sm transition">Prijava dolaska</button>
+                    <button onclick="logAttendance('Prijava odlaska')" class="flex-1 bg-rose-600 hover:bg-rose-500 py-2.5 rounded-lg font-medium text-sm transition">Prijava odlaska</button>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+                <h3 class="text-lg font-semibold mb-3 text-slate-200">Zahtev za godišnji / odsustvo</h3>
+                <form onsubmit="submitLeaveRequest(event)" class="space-y-3">
+                    <input type="text" id="leave-reason" placeholder="Razlog (npr. Godišnji odmor)" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none">
+                    <div class="flex gap-2">
+                        <input type="date" id="leave-from" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none text-slate-300">
+                        <input type="date" id="leave-to" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none text-slate-300">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded-lg font-medium text-sm transition">Podnesi zahtev</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+            <h3 class="text-lg font-semibold mb-3 text-slate-200">Aktivnosti i Zahtevi tima</h3>
+            <div id="hr-activity-log" class="space-y-2 text-sm text-slate-300">
+                <p class="text-slate-400">Nema evidentiranih aktivnosti za danas.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Članovi Sekcija -->
     <div id="view-users" class="flex-1 p-6 overflow-y-auto hidden max-w-4xl mx-auto w-full">
         <h2 class="text-2xl font-bold mb-4 text-slate-100">Upravljanje Članovima Tima</h2>
         
@@ -96,8 +146,7 @@
                         <th class="p-3">Uloga</th>
                     </tr>
                 </thead>
-                <tbody id="users-table-body" class="divide-y divide-slate-700 text-sm">
-                </tbody>
+                <tbody id="users-table-body" class="divide-y divide-slate-700 text-sm"></tbody>
             </table>
         </div>
     </div>
@@ -118,35 +167,61 @@
 
     <div id="upload-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
-            <h3 class="text-xl font-bold mb-4 text-slate-100">Upload dokumenta</h3>
+            <h3 class="text-xl font-bold mb-4 text-slate-100">Upload finansijskog dokumenta</h3>
             <form onsubmit="uploadDocument(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">Naziv / Opis stavke</label>
+                    <label class="block text-xs text-slate-400 mb-1">Naziv / Opis troška</label>
                     <input type="text" id="doc-title" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none focus:border-blue-500">
                 </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Izaberi folder</label>
-                    <select id="doc-category" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none"></select>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Iznos (RSD)</label>
+                        <input type="number" id="doc-amount" placeholder="0.00" step="0.01" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Folder</label>
+                        <select id="doc-category" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none"></select>
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">Izaberi fajl (slika ili PDF)</label>
+                    <label class="block text-xs text-slate-400 mb-1">Fajl (slika ili PDF)</label>
                     <input type="file" id="doc-file" required class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500">
                 </div>
                 <div class="flex justify-end gap-2 mt-6">
                     <button type="button" onclick="closeUploadModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm">Otkaži</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium">Pošalji</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium">Sačuvaj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="task-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
+            <h3 class="text-xl font-bold mb-4 text-slate-100">Novi radni zadatak</h3>
+            <form onsubmit="createTask(event)" class="space-y-4">
+                <input type="text" id="task-title" placeholder="Naslov zadatka" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none focus:border-blue-500">
+                <textarea id="task-desc" placeholder="Detalji zadatka..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none focus:border-blue-500 text-sm" rows="3"></textarea>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Dodelji kolegi</label>
+                    <select id="task-assignee" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 outline-none"></select>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeTaskModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm">Otkaži</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium">Kreiraj zadatak</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        const BACKEND_URL = 'https://tvoj-render-link.onrender.com'; // Zamenite vašim linkom
+        const BACKEND_URL = 'https://tvoj-render-link.onrender.com'; // Zamenite vašim Render linkom
         const socket = io(BACKEND_URL);
-        let currentChannel = 'general';
+        let currentChannel = 'generalni';
         let currentUserId = 1;
         let allUsers = [];
         let allDocuments = [];
+        let allTasks = [];
+        let hrLogs = [];
         let currentFolder = 'Sve';
 
         async function initApp() {
@@ -162,6 +237,9 @@
                 const select = document.getElementById('active-user-select');
                 select.innerHTML = allUsers.map(u => `<option value="${u.id}">${u.name} (${u.role})</option>`).join('');
                 if (allUsers.length > 0) currentUserId = allUsers[0].id;
+
+                const assigneeSelect = document.getElementById('task-assignee');
+                assigneeSelect.innerHTML = allUsers.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
 
                 const tbody = document.getElementById('users-table-body');
                 tbody.innerHTML = allUsers.map(u => `
@@ -197,8 +275,7 @@
             try {
                 const res = await fetch(`${BACKEND_URL}/api/documents`);
                 allDocuments = await res.json();
-                // Dodajemo podrazumevani status ako ne postoji u bazi
-                allDocuments = allDocuments.map(d => ({ ...d, status: d.status || 'Na čekanju' }));
+                allDocuments = allDocuments.map(d => ({ ...d, status: d.status || 'Na čekanju', amount: d.amount || 0 }));
                 renderFoldersAndDocs();
             } catch (err) { console.error(err); }
         }
@@ -224,11 +301,14 @@
 
         function filterDocuments() {
             const searchQuery = document.getElementById('search-input').value.toLowerCase();
-            
             let filtered = currentFolder === 'Sve' ? allDocuments : allDocuments.filter(d => d.category === currentFolder);
             if (searchQuery) {
                 filtered = filtered.filter(d => d.title.toLowerCase().includes(searchQuery) || d.file_name.toLowerCase().includes(searchQuery));
             }
+
+            // Izračunaj ukupan iznos
+            const totalSum = filtered.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+            document.getElementById('total-expenses-summary').innerText = `Ukupni iznos stavki: ${totalSum.toLocaleString()} RSD`;
 
             const grid = document.getElementById('documents-grid');
             if (filtered.length === 0) {
@@ -249,6 +329,7 @@
                                 <span class="text-xs px-2.5 py-1 rounded-full font-medium ${statusColor}">${d.status}</span>
                             </div>
                             <h3 class="text-lg font-semibold mt-3 text-slate-100">${d.title}</h3>
+                            <p class="text-xl font-bold text-emerald-400 mt-1">${parseFloat(d.amount).toLocaleString()} RSD</p>
                             <p class="text-xs text-slate-400 mt-1">Fajl: ${d.file_name} • ${d.timestamp}</p>
                         </div>
                         <div class="mt-4 pt-3 border-t border-slate-700/50 flex items-center justify-between gap-2">
@@ -269,10 +350,7 @@
 
         function updateStatus(id, newStatus) {
             const doc = allDocuments.find(d => d.id === id);
-            if (doc) {
-                doc.status = newStatus;
-                filterDocuments();
-            }
+            if (doc) { doc.status = newStatus; filterDocuments(); }
         }
 
         function selectFolder(folder) { currentFolder = folder; renderFoldersAndDocs(); }
@@ -294,6 +372,7 @@
         async function uploadDocument(e) {
             e.preventDefault();
             const title = document.getElementById('doc-title').value;
+            const amount = document.getElementById('doc-amount').value;
             const category = document.getElementById('doc-category').value;
             const fileInput = document.getElementById('doc-file');
             const file = fileInput.files[0];
@@ -304,11 +383,12 @@
                 const res = await fetch(`${BACKEND_URL}/api/documents`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, category, fileData: event.target.result, fileName: file.name, userId: currentUserId })
+                    body: JSON.stringify({ title: `${title} (${amount} RSD)`, category, amount, fileData: event.target.result, fileName: file.name, userId: currentUserId })
                 });
                 if (res.ok) {
                     closeUploadModal();
                     document.getElementById('doc-title').value = '';
+                    document.getElementById('doc-amount').value = '';
                     fileInput.value = '';
                     await fetchDocuments();
                     alert("Uspešno sačuvano!");
@@ -317,8 +397,81 @@
             reader.readAsDataURL(file);
         }
 
+        // Zadaci funkcije
+        function openTaskModal() { document.getElementById('task-modal').classList.remove('hidden'); }
+        function closeTaskModal() { document.getElementById('task-modal').classList.add('hidden'); }
+        function createTask(e) {
+            e.preventDefault();
+            const title = document.getElementById('task-title').value;
+            const desc = document.getElementById('task-desc').value;
+            const assignee = document.getElementById('task-assignee').value;
+            
+            allTasks.push({ id: Date.now(), title, desc, assignee, status: 'U toku' });
+            closeTaskModal();
+            document.getElementById('task-title').value = '';
+            document.getElementById('task-desc').value = '';
+            renderTasks();
+        }
+        function updateTaskStatus(id, status) {
+            const t = allTasks.find(x => x.id === id);
+            if(t) { t.status = status; renderTasks(); }
+        }
+        function renderTasks() {
+            const grid = document.getElementById('tasks-grid');
+            if(allTasks.length === 0) {
+                grid.innerHTML = `<p class="text-slate-400 col-span-full">Nema aktivnih radnih zadataka.</p>`;
+                return;
+            }
+            grid.innerHTML = allTasks.map(t => `
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-full font-medium">Za: ${t.assignee}</span>
+                            <span class="text-xs ${t.status === 'Završeno' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'} px-2.5 py-1 rounded-full">${t.status}</span>
+                        </div>
+                        <h3 class="text-lg font-semibold mt-3 text-slate-100">${t.title}</h3>
+                        <p class="text-sm text-slate-400 mt-1">${t.desc}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-700 flex justify-end gap-2">
+                        <button onclick="updateTaskStatus(${t.id}, 'U toku')" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-xs">U toku</button>
+                        <button onclick="updateTaskStatus(${t.id}, 'Završeno')" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded text-xs">Završi</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // HR Funkcije
+        function logAttendance(type) {
+            const user = allUsers.find(u => u.id === currentUserId);
+            const time = new Date().toLocaleTimeString();
+            hrLogs.unshift(`📍 ${user ? user.name : 'Korisnik'} - ${type} u ${time}`);
+            renderHRLogs();
+            alert(`Uspešno zabeleženo: ${type}`);
+        }
+        function submitLeaveRequest(e) {
+            e.preventDefault();
+            const reason = document.getElementById('leave-reason').value;
+            const from = document.getElementById('leave-from').value;
+            const to = document.getElementById('leave-to').value;
+            const user = allUsers.find(u => u.id === currentUserId);
+            
+            hrLogs.unshift(`🏖️ Zahtev za odmor: ${user ? user.name : 'Korisnik'} (${reason} od ${from} do ${to})`);
+            renderHRLogs();
+            document.getElementById('leave-reason').value = '';
+            alert("Zahtev uspešno poslat upravi!");
+        }
+        function renderHRLogs() {
+            const container = document.getElementById('hr-activity-log');
+            if(hrLogs.length === 0) {
+                container.innerHTML = `<p class="text-slate-400">Nema evidentiranih aktivnosti za danas.</p>`;
+                return;
+            }
+            container.innerHTML = hrLogs.map(l => `<div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50">${l}</div>`).join('');
+        }
+
+        // Navigacija po tabovima
         function switchTab(tab) {
-            ['chat', 'docs', 'users'].forEach(t => {
+            ['chat', 'docs', 'tasks', 'hr', 'users'].forEach(t => {
                 document.getElementById(`view-${t}`).classList.add('hidden');
                 document.getElementById(`tab-${t}`).className = 'px-3 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-sm transition';
             });
@@ -328,9 +481,9 @@
 
         function switchChannel(channel) {
             currentChannel = channel;
-            ['general', 'fakture', 'announcements'].forEach(c => {
+            ['generalni', 'uprava', 'racunovodstvo', 'nabavka-teren', 'obavestenja'].forEach(c => {
                 const btn = document.getElementById(`btn-${c}`);
-                if(btn) btn.className = c === channel ? 'text-left px-3 py-2 rounded-lg bg-blue-600 font-medium transition' : 'text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition';
+                if(btn) btn.className = c === channel ? 'text-left px-3 py-2 rounded-lg bg-blue-600 font-medium transition text-sm' : 'text-left px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm';
             });
             socket.emit('join_channel', channel);
         }

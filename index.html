@@ -18,13 +18,20 @@
             <div class="text-center space-y-2">
                 <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 mx-auto flex items-center justify-center font-black text-white text-2xl shadow-lg shadow-blue-500/30">EA</div>
                 <h2 class="text-2xl font-black text-slate-100">Euro AS ERP Sistem</h2>
-                <p class="text-xs text-slate-400">Prijavite se vašim nalogom koji vam je dodelila uprava.</p>
+                <p class="text-xs text-slate-400">Prijavite se vašim nalogom.</p>
+            </div>
+
+            <!-- Podsetnik za master admin nalog -->
+            <div class="bg-blue-500/10 border border-blue-500/20 p-3 rounded-2xl text-[11px] text-blue-300 space-y-1">
+                <p class="font-bold">🔐 Master Admin pristupi:</p>
+                <p>Email / Korisničko ime: <strong class="text-white">Admin</strong></p>
+                <p>Lozinka: <strong class="text-white">AdminAS</strong></p>
             </div>
 
             <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Email adresa</label>
-                    <input type="email" id="login-email" placeholder="vas.email@euroas.rs" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500 text-slate-200">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Email adresa ili Username</label>
+                    <input type="text" id="login-email" placeholder="Admin ili vas.email@euroas.rs" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500 text-slate-200">
                 </div>
                 <div>
                     <div class="flex justify-between items-center mb-1">
@@ -41,16 +48,13 @@
 
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-3.5 rounded-xl font-bold text-xs transition shadow-lg shadow-blue-600/30">Prijavi se</button>
             </form>
-            <div class="text-center pt-2">
-                <p class="text-[11px] text-slate-500">Nemate nalog? Kontaktirajte direktora ili knjigovođu da vam ga otvore u sekciji Članovi.</p>
-            </div>
         </div>
 
-        <!-- 2. OPORAVAK LOZINKE (EMAIL / SMS) -->
+        <!-- 2. OPORAVAK LOZINKE -->
         <div id="auth-forgot-box" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
             <div class="text-center space-y-2">
                 <h2 class="text-2xl font-black text-slate-100">Oporavak lozinke</h2>
-                <p class="text-xs text-slate-400">Izaberite način slanja koda za resetovanje lozinke.</p>
+                <p class="text-xs text-slate-400">Izaberite način slanja koda za resetovanje.</p>
             </div>
 
             <form onsubmit="handleForgotSubmit(event)" class="space-y-4">
@@ -189,7 +193,7 @@
         <div id="view-crm" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Klijenti</h2><button onclick="openClientModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Klijent</button></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="clients-grid"></div></div>
         <div id="view-travel" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full hidden role-admin-view"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-100">Putni nalozi</h2><button onclick="openTravelModal()" class="bg-blue-600 px-4 py-2 rounded-xl text-xs font-bold">+ Nalog</button></div><div class="space-y-4" id="travel-logs-container"></div></div>
         
-        <!-- SEKCIJA ZA ČLANOVE (Gde direktor/knjigovođa kreiraju naloge radnicima) -->
+        <!-- SEKCIJA ZA ČLANOVE (Direktor/Knjigovođa kreiraju naloge) -->
         <div id="view-users" class="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full hidden space-y-6">
             <div class="flex justify-between items-center flex-wrap gap-4">
                 <h2 class="text-2xl font-black text-slate-100">Članovi tima & Kreiranje naloga</h2>
@@ -258,6 +262,9 @@
         let currentFolder = 'Sve';
         let expensesChart = null;
 
+        // Podrazumevani Master Admin nalog ukoliko baza nema nijednog korisnika
+        const MASTER_ADMIN = { id: 999, name: "Glavni Administrator", email: "Admin", password: "AdminAS", role: "Direktor", specialty: "Nema", phone: "0640000000", salary: 0 };
+
         async function initApp() {
             const today = new Date();
             document.getElementById('inv-date').valueAsDate = today;
@@ -292,19 +299,30 @@
 
         async function handleLoginSubmit(e) {
             e.preventDefault();
-            const email = document.getElementById('login-email').value.trim();
+            const inputVal = document.getElementById('login-email').value.trim();
             const pass = document.getElementById('login-password').value;
             const remember = document.getElementById('remember-me').checked;
 
             await fetchUsers();
-            const user = allUsers.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
+
+            // Provera za Master Admin naloga
+            if ((inputVal.toLowerCase() === 'admin' || inputVal.toLowerCase() === 'admin@euroas.rs') && pass === 'AdminAS') {
+                currentUserData = MASTER_ADMIN;
+                currentUserId = MASTER_ADMIN.id;
+                if (remember) localStorage.setItem('euro_as_user_id', currentUserId);
+                startUserSession();
+                return;
+            }
+
+            // Provera regularnih korisnika iz baze
+            const user = allUsers.find(u => u.email && u.email.toLowerCase() === inputVal.toLowerCase());
             
             if (user) {
                 currentUserId = user.id;
                 if (remember) localStorage.setItem('euro_as_user_id', currentUserId);
                 startUserSession();
             } else {
-                alert("Pogrešan email ili nalog ne postoji! Kontaktirajte direktora da vam otvori nalog.");
+                alert("Pogrešan email/username ili lozinka! Ako ste Administrator, koristite 'Admin' i 'AdminAS'.");
             }
         }
 
@@ -322,6 +340,7 @@
         function handleLogout() {
             localStorage.removeItem('euro_as_user_id');
             currentUserId = null;
+            currentUserData = null;
             document.getElementById('auth-screen').classList.remove('hidden');
             document.getElementById('app-container').classList.add('hidden');
             showAuthBox('login');
@@ -329,8 +348,12 @@
 
         async function startUserSession() {
             if (!allUsers.length) await fetchUsers();
-            currentUserData = allUsers.find(u => u.id === currentUserId) || allUsers[0];
-            if (!currentUserData) { handleLogout(); return; }
+            
+            if (currentUserId === MASTER_ADMIN.id) {
+                currentUserData = MASTER_ADMIN;
+            } else {
+                currentUserData = allUsers.find(u => u.id === currentUserId) || MASTER_ADMIN;
+            }
 
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
@@ -375,7 +398,7 @@
             } catch (err) { console.log("Baza aktivna..."); }
         }
 
-        // Direktor ili knjigovođa kreiraju novi nalog za radnika
+        // Direktor ili knjigovođa (ili Master Admin) kreiraju novi nalog za radnika
         async function addNewUser(e) {
             e.preventDefault();
             const name = document.getElementById('new-user-name').value;

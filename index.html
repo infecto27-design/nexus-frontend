@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusConnect - Sve-u-Jednom ERP Portal</title>
+    <title>NexusConnect - Enterprise ERP Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <!-- Chart.js za napredne grafikone -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 h-screen flex flex-col">
 
@@ -13,7 +15,8 @@
     <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center flex-wrap gap-3">
         <h1 class="text-xl font-bold text-blue-400">NexusConnect Enterprise</h1>
         <div class="flex items-center gap-1.5 flex-wrap">
-            <button onclick="switchTab('chat')" id="tab-chat" class="px-2.5 py-1.5 rounded-lg bg-blue-600 font-medium text-xs transition">Chat</button>
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-2.5 py-1.5 rounded-lg bg-blue-600 font-medium text-xs transition">📊 Dashboard</button>
+            <button onclick="switchTab('chat')" id="tab-chat" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Chat</button>
             <button onclick="switchTab('docs')" id="tab-docs" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Finansije</button>
             <button onclick="switchTab('tasks')" id="tab-tasks" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Zadaci</button>
             <button onclick="switchTab('hr')" id="tab-hr" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">HR & Vreme</button>
@@ -22,16 +25,60 @@
             <button onclick="switchTab('travel')" id="tab-travel" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Putni nalozi</button>
             <button onclick="switchTab('users')" id="tab-users" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition">Članovi</button>
             
+            <!-- Zvonce za notifikacije -->
+            <div class="relative ml-2">
+                <button onclick="toggleNotifications()" class="p-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg relative">
+                    🔔
+                    <span id="notif-badge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+                </button>
+                <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-72 bg-slate-800 border border-slate-700 rounded-xl shadow-xl z-50 p-3 space-y-2 text-xs">
+                    <h4 class="font-bold border-b border-slate-700 pb-1 text-slate-300">Obaveštenja</h4>
+                    <div id="notif-list" class="space-y-1 max-h-48 overflow-y-auto text-slate-400">
+                        <p>Nema novih obaveštenja.</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex items-center gap-2 ml-2 bg-slate-700 px-2.5 py-1 rounded-lg">
                 <span class="text-xs text-slate-400">Korisnik:</span>
-                <select id="active-user-select" onchange="changeActiveUser(this.value)" class="bg-slate-800 text-slate-100 text-xs rounded px-2 py-1 outline-none">
-                </select>
+                <select id="active-user-select" onchange="changeActiveUser(this.value)" class="bg-slate-800 text-slate-100 text-xs rounded px-2 py-1 outline-none"></select>
             </div>
         </div>
     </header>
 
-    <!-- 1. Chat Sekcija -->
-    <div id="view-chat" class="flex flex-1 overflow-hidden">
+    <!-- 0. DASHBOARD MODUL (Početni pregled sa grafikonom) -->
+    <div id="view-dashboard" class="flex-1 p-6 overflow-y-auto max-w-6xl mx-auto w-full space-y-6">
+        <h2 class="text-2xl font-bold text-slate-100">Pregled Poslovanja i Analitika</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                <p class="text-xs text-slate-400">Ukupni troškovi</p>
+                <h3 id="dash-total-expenses" class="text-xl font-bold text-emerald-400 mt-1">0 RSD</h3>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                <p class="text-xs text-slate-400">Aktivni zadaci</p>
+                <h3 id="dash-active-tasks" class="text-xl font-bold text-blue-400 mt-1">0</h3>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                <p class="text-xs text-slate-400">Artikli u magacinu</p>
+                <h3 id="dash-inventory-count" class="text-xl font-bold text-amber-400 mt-1">0</h3>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                <p class="text-xs text-slate-400">Registrovani klijenti</p>
+                <h3 id="dash-client-count" class="text-xl font-bold text-purple-400 mt-1">0</h3>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+            <h3 class="text-lg font-semibold mb-4 text-slate-200">Struktura troškova po kategorijama</h3>
+            <div class="h-64">
+                <canvas id="expensesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- OSTALI MODULI (Chat, Finansije, Zadaci, HR, Magacin, CRM, Travel, Users) -->
+    <div id="view-chat" class="flex flex-1 overflow-hidden hidden">
         <div class="w-64 bg-slate-800/50 border-r border-slate-700 p-4 flex flex-col gap-2 overflow-y-auto">
             <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Poslovni Kanali</h2>
             <button onclick="switchChannel('generalni')" id="btn-generalni" class="text-left px-3 py-2 rounded-lg bg-blue-600 font-medium transition text-sm"># generalni</button>
@@ -49,7 +96,6 @@
         </div>
     </div>
 
-    <!-- 2. Dokumenti i Finansije -->
     <div id="view-docs" class="flex-1 p-6 overflow-y-auto hidden flex flex-col">
         <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
             <div>
@@ -69,7 +115,6 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="documents-grid"></div>
     </div>
 
-    <!-- 3. Modul za Zadatke -->
     <div id="view-tasks" class="flex-1 p-6 overflow-y-auto hidden max-w-5xl mx-auto w-full">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-slate-100">Radni Zadaci i Naloji</h2>
@@ -78,7 +123,6 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="tasks-grid"></div>
     </div>
 
-    <!-- 4. Modul za Radno Vreme -->
     <div id="view-hr" class="flex-1 p-6 overflow-y-auto hidden max-w-4xl mx-auto w-full space-y-6">
         <h2 class="text-2xl font-bold text-slate-100">Evidencija Radnog Vremena i Odmora</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -110,7 +154,6 @@
         </div>
     </div>
 
-    <!-- 5. Magacin i Inventar -->
     <div id="view-inventory" class="flex-1 p-6 overflow-y-auto hidden max-w-5xl mx-auto w-full">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-slate-100">Magacin i Zaduženja Opreme</h2>
@@ -131,7 +174,6 @@
         </div>
     </div>
 
-    <!-- 6. CRM i Klijenti -->
     <div id="view-crm" class="flex-1 p-6 overflow-y-auto hidden max-w-5xl mx-auto w-full">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-slate-100">Baza Klijenata i Partnera</h2>
@@ -140,7 +182,6 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="clients-grid"></div>
     </div>
 
-    <!-- 7. Putni Nalozi -->
     <div id="view-travel" class="flex-1 p-6 overflow-y-auto hidden max-w-5xl mx-auto w-full">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-slate-100">Putni Nalozi i Službena Vozila</h2>
@@ -149,7 +190,6 @@
         <div class="space-y-4" id="travel-logs-container"></div>
     </div>
 
-    <!-- 8. Članovi Sekcija -->
     <div id="view-users" class="flex-1 p-6 overflow-y-auto hidden max-w-4xl mx-auto w-full">
         <h2 class="text-2xl font-bold mb-4 text-slate-100">Upravljanje Članovima Tima</h2>
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-6">
@@ -179,7 +219,7 @@
         </div>
     </div>
 
-    <!-- Modali za nove module -->
+    <!-- Modali -->
     <div id="inventory-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full">
             <h3 class="text-xl font-bold mb-4 text-slate-100">Novi artikal / oprema</h3>
@@ -284,13 +324,97 @@
         let inventoryItems = [];
         let clientsList = [];
         let travelLogs = [];
+        let notifications = [];
+        let unreadNotifs = 0;
         let currentFolder = 'Sve';
+        let expensesChart = null;
 
         async function initApp() {
             await fetchUsers();
             await fetchDocuments();
+            initDashboardChart();
         }
         initApp();
+
+        // Socket Notifikacije u realnom vremenu
+        socket.on('new_notification', (data) => {
+            unreadNotifs++;
+            notifications.unshift(data.text);
+            updateNotifUI();
+        });
+
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notif-dropdown');
+            dropdown.classList.toggle('hidden');
+            unreadNotifs = 0;
+            updateNotifUI();
+        }
+
+        function updateNotifUI() {
+            const badge = document.getElementById('notif-badge');
+            if (unreadNotifs > 0) {
+                badge.innerText = unreadNotifs;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            const list = document.getElementById('notif-list');
+            if (notifications.length === 0) {
+                list.innerHTML = `<p>Nema novih obaveštenja.</p>`;
+            } else {
+                list.innerHTML = notifications.map(n => `<div class="p-1.5 bg-slate-900/50 rounded border border-slate-700/50">${n}</div>`).join('');
+            }
+        }
+
+        // Dashboard i Grafikoni
+        function updateDashboard() {
+            const totalSum = allDocuments.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+            document.getElementById('dash-total-expenses').innerText = `${totalSum.toLocaleString()} RSD`;
+            document.getElementById('dash-active-tasks').innerText = allTasks.filter(t => t.status !== 'Završeno').length;
+            document.getElementById('dash-inventory-count').innerText = inventoryItems.length;
+            document.getElementById('dash-client-count').innerText = clientsList.length;
+
+            updateChartData();
+        }
+
+        function initDashboardChart() {
+            const ctx = document.getElementById('expensesChart').getContext('2d');
+            expensesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Fiskalni računi', 'Fakture', 'Otpremnice', 'Ostalo'],
+                    datasets: [{
+                        label: 'Ukupno (RSD)',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+                    }
+                }
+            });
+            updateChartData();
+        }
+
+        function updateChartData() {
+            if (!expensesChart) return;
+            const categories = ['Fiskalni računi', 'Fakture', 'Otpremnice', 'Ostalo'];
+            const sums = categories.map(cat => {
+                return allDocuments
+                    .filter(d => d.category === cat)
+                    .reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+            });
+
+            expensesChart.data.datasets[0].data = sums;
+            expensesChart.update();
+        }
 
         async function fetchUsers() {
             try {
@@ -339,6 +463,7 @@
                 allDocuments = await res.json();
                 allDocuments = allDocuments.map(d => ({ ...d, status: d.status || 'Na čekanju', amount: d.amount || 0 }));
                 renderFoldersAndDocs();
+                updateDashboard();
             } catch (err) { console.error(err); }
         }
 
@@ -458,18 +583,26 @@
             reader.readAsDataURL(file);
         }
 
-        // Zadaci, HR, Magacin, CRM, Putni nalozi funkcije
         function openTaskModal() { document.getElementById('task-modal').classList.remove('hidden'); }
         function closeTaskModal() { document.getElementById('task-modal').classList.add('hidden'); }
         function createTask(e) {
             e.preventDefault();
-            allTasks.push({ id: Date.now(), title: document.getElementById('task-title').value, desc: document.getElementById('task-desc').value, assignee: document.getElementById('task-assignee').value, status: 'U toku' });
+            const title = document.getElementById('task-title').value;
+            const desc = document.getElementById('task-desc').value;
+            const assignee = document.getElementById('task-assignee').value;
+
+            const targetUser = allUsers.find(u => u.name === assignee);
+
+            allTasks.push({ id: Date.now(), title, desc, assignee, status: 'U toku' });
+            socket.emit('assign_task', { title, desc, assignee, assigneeEmail: targetUser ? targetUser.email : null });
+
             closeTaskModal();
             renderTasks();
+            updateDashboard();
         }
         function updateTaskStatus(id, status) {
             const t = allTasks.find(x => x.id === id);
-            if(t) { t.status = status; renderTasks(); }
+            if(t) { t.status = status; renderTasks(); updateDashboard(); }
         }
         function renderTasks() {
             const grid = document.getElementById('tasks-grid');
@@ -498,6 +631,7 @@
             inventoryItems.push({ name: document.getElementById('inv-name').value, category: document.getElementById('inv-category').value, qty: document.getElementById('inv-qty').value, assigned: document.getElementById('inv-assigned').value || 'Magacin' });
             closeModal('inventory-modal');
             renderInventory();
+            updateDashboard();
         }
         function renderInventory() {
             const tbody = document.getElementById('inventory-table-body');
@@ -510,6 +644,7 @@
             clientsList.push({ name: document.getElementById('client-name').value, pib: document.getElementById('client-pib').value, contact: document.getElementById('client-contact').value });
             closeModal('client-modal');
             renderClients();
+            updateDashboard();
         }
         function renderClients() {
             const grid = document.getElementById('clients-grid');
@@ -547,12 +682,13 @@
         }
 
         function switchTab(tab) {
-            ['chat', 'docs', 'tasks', 'hr', 'inventory', 'crm', 'travel', 'users'].forEach(t => {
+            ['dashboard', 'chat', 'docs', 'tasks', 'hr', 'inventory', 'crm', 'travel', 'users'].forEach(t => {
                 document.getElementById(`view-${t}`).classList.add('hidden');
                 document.getElementById(`tab-${t}`).className = 'px-2.5 py-1.5 rounded-lg hover:bg-slate-700 font-medium text-xs transition';
             });
             document.getElementById(`view-${tab}`).classList.remove('hidden');
             document.getElementById(`tab-${tab}`).className = 'px-2.5 py-1.5 rounded-lg bg-blue-600 font-medium text-xs transition';
+            if (tab === 'dashboard') updateDashboard();
         }
 
         function switchChannel(channel) {
